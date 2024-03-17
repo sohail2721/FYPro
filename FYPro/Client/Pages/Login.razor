@@ -46,14 +46,14 @@
                     <h2>Login</h2>
                     <div class="input-group">
                         <label for="username">Username</label>
-                        <input type="text" id="username" name="username" required >
+                        <input type="text" id="Email" name="Email" required @bind="Email">
                     </div>
                     <div class="input-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required >
+                        <input type="password" id="password" name="password" required @bind="Password">
                     </div>
                     <div class="login-container">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button">Login</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@HandleLogin">Login</MudButton>
                     </div>
                     <div class="forgot-password">
                         <a href="ResetPassword">Forgot password?</a>
@@ -72,7 +72,7 @@
 
 @code{
 
-    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     private string Password { get; set; } = string.Empty;
     List<LoginModel> LoginData = new List<LoginModel>();
     private bool showAlert = false;
@@ -81,7 +81,6 @@
     {
         ApiRequest.http = http;
         ApiRequest.jsr = jsr;
-        MudItems.Snackbar = Snackbar;
         await jsr.InvokeVoidAsync("localStorage.clear");
 
     }
@@ -99,8 +98,21 @@
 
     protected async Task HandleLogin()
     {
+        Console.WriteLine("Agya!");
+        var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
+        Console.WriteLine("Yahan bhi");
+        if (i.ToList()[0] > 0)
+        {
+            Console.WriteLine("User Pakra Gya!");
+            LoginData = await http.GetFromJsonAsync<List<LoginModel>>($"api/Auth/user/{Email}");
+            if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
+            {
+                Console.WriteLine("Login Successful!");
+                NavigationManager.NavigateTo($"/fetchdata");
 
+            }
+        }
 
     }
 
-}
+    }
