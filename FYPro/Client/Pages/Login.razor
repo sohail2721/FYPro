@@ -98,12 +98,11 @@
 
     protected async Task HandleLogin()
     {
-        Console.WriteLine("Agya!");
+     
         var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
-        Console.WriteLine("Yahan bhi");
+        
         if (i.ToList()[0] > 0)
         {
-            Console.WriteLine("User Pakra Gya!");
             LoginData = await http.GetFromJsonAsync<List<LoginModel>>($"api/Auth/user/{Email}");
             if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
             {
