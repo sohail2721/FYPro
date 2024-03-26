@@ -74,7 +74,7 @@
 
     public string Email { get; set; } = string.Empty;
     private string Password { get; set; } = string.Empty;
-    List<LoginModel> LoginData = new List<LoginModel>();
+    List<UserModel> LoginData = new List<UserModel>();
     private bool showAlert = false;
 
     protected async override Task OnInitializedAsync()
@@ -98,17 +98,28 @@
 
     protected async Task HandleLogin()
     {
-     
+
         var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
-        
+
         if (i.ToList()[0] > 0)
         {
-            LoginData = await http.GetFromJsonAsync<List<LoginModel>>($"api/Auth/user/{Email}");
+            LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{Email}");
             if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
             {
                 Console.WriteLine("Login Successful!");
-                NavigationManager.NavigateTo($"/fetchdata");
 
+                if (LoginData.ToList()[0].UserType == "Student")
+                {
+                    NavigationManager.NavigateTo($"/StudentHomepage");
+                }
+                else if(LoginData.ToList()[0].UserType == "Admin")
+                {
+                    //NavigationManager.NavigateTo($"/AdminHomepage");
+                }
+                else if (LoginData.ToList()[0].UserType == "Supervisor")
+                {
+                    //NavigationManager.NavigateTo($"/SupervisorHomepage");
+                }
             }
         }
 

@@ -1,0 +1,125 @@
+﻿@page "/DiscussionForumPage"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+
+    <head>
+        <h2>FYPRO Discussion Forum</h2>
+    </head>
+<style>
+    .forum {
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .message {
+        background-color: #f2f2f2;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .user {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .time {
+        color: #666;
+        font-size: 0.8em;
+    }
+
+    .content {
+        margin-top: 10px;
+    }
+
+    .forum-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .forum {
+        flex-grow: 1;
+    }
+
+    .new-message {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+        width: calc(100% - 70px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+    }
+
+    button {
+        width: 70px;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<div class="forum-container">
+    <div class="forum">
+        @foreach (var message in messages)
+        {
+            <div class="message">
+                <div class="user">@message.User</div>
+                <div class="time">@message.Time</div>
+                <div class="content">@message.Content</div>
+            </div>
+        }
+    </div>
+
+    <div class="new-message">
+        <input type="text" @bind="newMessage" placeholder="Type your message..." />
+        <button @onclick="SendMessage">Send</button>
+    </div>
+</div>
+
+@code {
+    private List<Message> messages = new List<Message>
+{
+        new Message { User = "Sohail", Time = "March 22, 2024, 10:00 AM", Content = "Greetings fellow developers! Let's use this forum to share updates on our software projects. What are you currently working on? Any interesting challenges or breakthroughs?" },
+         new Message { User = "Fareeah", Time = "March 22, 2024, 10:00 AM", Content = "I'm thrilled to share that we've successfully implemented a new feature in our open-source project! It's now available for testing, and we welcome feedback from the community." },
+        new Message { User = "Fareeah", Time = "March 22, 2024, 11:30 AM", Content = "That's fantastic news, On my end, I've been tackling performance optimization in our backend system. I've identified a few bottlenecks and am exploring solutions to improve response times." },
+         new Message { User = "Sohail", Time = "March 22, 2024, 10:00 AM", Content = "I'd like to raise awareness about an ongoing bug in our frontend UI. Despite several attempts, we haven't been able to replicate it consistently. Any suggestions on how we can troubleshoot this issue?" },
+        new Message { User = "Faisal", Time = "March 22, 2024, 11:30 AM", Content = "I've been experimenting with integrating machine learning algorithms into our application to enhance user personalization. Exciting progress so far, but I'm facing some challenges with data preprocessing. Any ML enthusiasts here who can offer advice?"}
+        // Add more initial messages if needed
+    };
+
+        private string newMessage = "";
+
+        private void SendMessage()
+        {
+            if (!string.IsNullOrWhiteSpace(newMessage))
+            {
+                messages.Add(new Message { User = "New User", Time = DateTime.Now.ToString("MMMM dd, yyyy, hh:mm tt"), Content = newMessage });
+                newMessage = "";
+            }
+        }
+
+        public class Message
+        {
+            public string User { get; set; }
+            public string Time { get; set; }
+            public string Content { get; set; }
+        }
+    }

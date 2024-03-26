@@ -68,10 +68,10 @@ namespace FYPro.Server.Controllers
             return Ok(i);
         }
         [HttpGet("user/{Email}")]
-        public async Task<ActionResult<List<LoginModel>>> VerifyUser(string Email)
+        public async Task<ActionResult<List<UserModel>>> VerifyUser(string Email)
         {
 
-            var i = await CreateConnection().QueryAsync<LoginModel>($"SELECT * FROM Users WHERE Email = '{Email}'");
+            var i = await CreateConnection().QueryAsync<UserModel>($"SELECT * FROM Users WHERE Email = '{Email}'");
             //i.ToList()[0].jwtbearer = await CreateJWT(Email);
             return Ok(i);
         }
