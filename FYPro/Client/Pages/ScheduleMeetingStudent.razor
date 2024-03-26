@@ -1,0 +1,117 @@
+﻿@page "/ScheduleMeetingStudent"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Meeting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        p {
+            text-align: justify;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Schedule Meeting with Supervisor</h1>
+        <p>This form allows you to schedule a meeting with your assigned supervisor. Please choose a suitable day and timeslot, and provide any additional information you think is necessary.</p>
+
+
+
+        <form action="#">
+            <label for="date">Choose a day:</label>
+            <input type="date" id="date" name="date">
+
+            <label for="timeslot">Choose a timeslot:</label>
+            <select id="timeslot" name="timeslot">
+                <option value="9:00 AM">9:00 AM</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="1:00 PM">1:00 PM</option>
+                <option value="2:00 PM">2:00 PM</option>
+                <option value="3:00 PM">3:00 PM</option>
+                <option value="4:00 PM">4:00 PM</option>
+                <option value="5:00 PM">5:00 PM</option>
+            </select>
+
+
+            <h2>Contact Information</h2>
+            <p>For any urgent matters or inquiries, you can contact your supervisor using the information below:</p>
+            <ul>
+                <li><strong>Name:</strong> Hassan Mujtaba </li>
+                <li><strong>Email:</strong> hassan.mujtaba@nu.edu.pk</li>
+                <li><strong>Phone:</strong> 0900-78601</li>
+            </ul>
+            <input type="submit" value="Schedule">
+        </form>
+    </div>
+</body>
+</html>

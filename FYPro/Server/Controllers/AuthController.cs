@@ -15,6 +15,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Data;
+using FYPro.Shared;
 
 
 namespace FYPro.Server.Controllers
@@ -35,18 +36,22 @@ namespace FYPro.Server.Controllers
             SqlConnection con = new SqlConnection(configuration.GetConnectionString("Default"));
             return con;
         }
-        private async Task<string> CreateJWT(string Username)
+        private async Task<string> CreateJWT(string Username,string UserType)
         {
             var secretkey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwt:Key"]));
             var credentials = new SigningCredentials(secretkey, SecurityAlgorithms.HmacSha256);
             String Roles;
-            if (Char.IsDigit(Username[0]))
+            if (UserType == "Student")
             {
                 Roles = "student";
             }
+            else if (UserType == "Supervisor")
+            {
+                Roles = "supervisor";
+            }
             else
             {
-                Roles = "faculty";
+                Roles = "admin";
             }
             var claims = new[]
             {
@@ -58,6 +63,21 @@ namespace FYPro.Server.Controllers
 
             var token = new JwtSecurityToken(issuer: configuration["jwt:Issuer"], audience: configuration["jwt:Audience"], claims: claims, expires: DateTime.Now.AddMonths(1), signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpGet("VerificationUser/{Email}")]
+        public async Task<ActionResult<List<int>>> VerifyExistenceStudent(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<int>($"select count(*) Count from Users where Email ='{Email}'");
+            return Ok(i);
+        }
+        [HttpGet("user/{Email}")]
+        public async Task<ActionResult<List<UserModel>>> VerifyUser(string Email)
+        {
+
+            var i = await CreateConnection().QueryAsync<UserModel>($"SELECT * FROM Users WHERE Email = '{Email}'");
+            i.ToList()[0].jwtbearer = await CreateJWT(Email, i.ToList()[0].UserType);
+            return Ok(i);
         }
     }
 }

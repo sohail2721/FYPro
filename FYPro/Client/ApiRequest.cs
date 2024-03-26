@@ -28,7 +28,6 @@ namespace FYPro.Client
             }
             catch (Exception e)
             {
-                //MudItems.SnackBar("Error While Inserting your Data", Defaults.Classes.Position.TopLeft, Severity.Error);
                 return null;
             }
             if (response.IsSuccessStatusCode)
@@ -40,13 +39,11 @@ namespace FYPro.Client
                 }
                 else
                 {
-                    //MudItems.SnackBar("Error While Inserting your Data", Defaults.Classes.Position.TopLeft, Severity.Error);
                     return null;
                 }
             }
             else
             {
-                //MudItems.SnackBar("Error While Inserting your Data", Defaults.Classes.Position.TopLeft, Severity.Error);
                 return null;
             }
         }
@@ -68,13 +65,11 @@ namespace FYPro.Client
                 }
                 else
                 {
-                    //MudItems.SnackBar("Error While Inserting your Data", Defaults.Classes.Position.TopLeft, Severity.Error);
                     return null;
                 }
             }
             else
             {
-                //MudItems.SnackBar("Error While Inserting your Data", Defaults.Classes.Position.TopLeft, Severity.Error);
                 return null;
             }
         }
@@ -94,7 +89,7 @@ namespace FYPro.Client
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                 {
-                    //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                   
                     return null;
                 }
                 else if (response.IsSuccessStatusCode)
@@ -102,12 +97,12 @@ namespace FYPro.Client
                     var list = await response.Content.ReadFromJsonAsync<T>();
                     return list;
                 }
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                
                 return null;
             }
             else
             {
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                
                 return null;
             }
         }
@@ -123,12 +118,12 @@ namespace FYPro.Client
                 if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
-                    //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                    
                     return null;
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                 {
-                    //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                   
                     return null;
                 }
                 else if (response.IsSuccessStatusCode)
@@ -136,12 +131,12 @@ namespace FYPro.Client
                     var list = await response.Content.ReadFromJsonAsync<int>();
                     return list;
                 }
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                
                 return null;
             }
             else
             {
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+               
                 return null;
             }
         }
@@ -157,12 +152,12 @@ namespace FYPro.Client
                 if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
-                    //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                   
                     return null;
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                 {
-                    //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+                   
 
                     return null;
                 }
@@ -171,14 +166,13 @@ namespace FYPro.Client
                     var list = await response.Content.ReadFromJsonAsync<bool>();
                     return list;
                 }
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
+               
 
                 return null;
             }
             else
             {
-                //MudItems.SnackBar("Something went wrong. Server Error", Defaults.Classes.Position.TopLeft, Severity.Error);
-
+               
                 return null;
             }
         }
