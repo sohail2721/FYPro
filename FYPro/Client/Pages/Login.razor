@@ -110,6 +110,7 @@
 
                 if (LoginData.ToList()[0].UserType == "Student")
                 {
+                    await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
                     NavigationManager.NavigateTo($"/StudentHomepage");
                 }
                 else if(LoginData.ToList()[0].UserType == "Admin")

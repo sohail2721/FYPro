@@ -177,6 +177,12 @@
 </html>
 
 @code{
-    //string currentUserName;
-    //List<LoginModel> NameData = new List<LoginModel>();
-}
+    string currentUserName = string.Empty;
+    protected async override Task OnInitializedAsync()
+    {
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        Console.WriteLine("UserName: " + currentUserName);
+
+    }
+    }
