@@ -1,0 +1,106 @@
+﻿@page "/Login"
+@inject HttpClient http
+@inject IJSRuntime jsr
+@using FYPro.Shared
+@inherits LayoutComponentBase
+@using MudBlazor
+@using OpenQA.Selenium;
+@using OpenQA.Selenium.Safari;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.IO
+
+@layout NoLayout
+@*@inject ISnackbar Snackbar*@
+@inject NavigationManager NavigationManager
+
+
+<html>
+<head>
+    <title>Login Page</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+
+
+</head>
+<body>
+
+    <div id="my-alert")">
+        <div class="alert-container">
+            <span class="oi oi-warning alert-text"> Invalid Username or Password</span>
+            @*<button class="close-button" @onclick="() => HideAlert()">x</button>*@
+        </div>
+    </div>
+
+
+
+    <div class="container">
+        <div class="left-section">
+   
+        </div>
+        <div class="right-section">
+            <form action="#" method="POST">
+                <div class="logo">
+                    <img src="FYPROLOGO.png" alt="Logo">
+                </div>
+                <div class="login-box">
+                    <h2>Login</h2>
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required >
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required >
+                    </div>
+                    <div class="login-container">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button">Login</MudButton>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="ResetPassword">Forgot password?</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+</body>
+
+</html>
+
+@code{
+
+    public string Username { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    List<LoginModel> LoginData = new List<LoginModel>();
+    private bool showAlert = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        MudItems.Snackbar = Snackbar;
+        await jsr.InvokeVoidAsync("localStorage.clear");
+
+    }
+    private void ShowAlert()
+    {
+        showAlert = true;
+        StateHasChanged();
+    }
+
+    private void HideAlert()
+    {
+        showAlert = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleLogin()
+    {
+
+
+    }
+
+}
