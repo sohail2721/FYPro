@@ -78,14 +78,14 @@
 
 <div class="forum-container">
     <div class="forum">
-        @foreach (var message in messages)
-        {
+        @foreach (var message in DiscussionData)
+            {
             <div class="message">
-                <div class="user">@message.User</div>
-                <div class="time">@message.Time</div>
+                <div class="user">@message.FirstName</div>
+                <div class="time">@message.PostDateTime.ToString("yyyy-MM-dd HH:mm:ss")</div>
                 <div class="content">@message.Content</div>
             </div>
-        }
+            }
     </div>
 
     <div class="new-message">
@@ -94,32 +94,28 @@
     </div>
 </div>
 
-@code {
-    private List<Message> messages = new List<Message>
+@code
 {
-        new Message { User = "Sohail", Time = "March 22, 2024, 10:00 AM", Content = "Greetings fellow developers! Let's use this forum to share updates on our software projects. What are you currently working on? Any interesting challenges or breakthroughs?" },
-         new Message { User = "Fareeah", Time = "March 22, 2024, 10:00 AM", Content = "I'm thrilled to share that we've successfully implemented a new feature in our open-source project! It's now available for testing, and we welcome feedback from the community." },
-        new Message { User = "Fareeah", Time = "March 22, 2024, 11:30 AM", Content = "That's fantastic news, On my end, I've been tackling performance optimization in our backend system. I've identified a few bottlenecks and am exploring solutions to improve response times." },
-         new Message { User = "Sohail", Time = "March 22, 2024, 10:00 AM", Content = "I'd like to raise awareness about an ongoing bug in our frontend UI. Despite several attempts, we haven't been able to replicate it consistently. Any suggestions on how we can troubleshoot this issue?" },
-        new Message { User = "Faisal", Time = "March 22, 2024, 11:30 AM", Content = "I've been experimenting with integrating machine learning algorithms into our application to enhance user personalization. Exciting progress so far, but I'm facing some challenges with data preprocessing. Any ML enthusiasts here who can offer advice?"}
-        // Add more initial messages if needed
-    };
+    public string newMessage { get; set; } = string.Empty;
+    List<DiscussionForumModel> DiscussionData = new List<DiscussionForumModel>();
+    List<UserModel> UserData = new List<UserModel>();
+    NewMessageModel newMessagePost = new NewMessageModel();
+    SuccessMessageModel check = new SuccessMessageModel();
+    string currentUserName = string.Empty;
+    protected async override Task OnInitializedAsync()
+    {
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        DiscussionData = await http.GetFromJsonAsync<List<DiscussionForumModel>>($"api/Student/GetDiscussionContent/");
 
-        private string newMessage = "";
-
-        private void SendMessage()
-        {
-            if (!string.IsNullOrWhiteSpace(newMessage))
-            {
-                messages.Add(new Message { User = "New User", Time = DateTime.Now.ToString("MMMM dd, yyyy, hh:mm tt"), Content = newMessage });
-                newMessage = "";
-            }
-        }
-
-        public class Message
-        {
-            public string User { get; set; }
-            public string Time { get; set; }
-            public string Content { get; set; }
-        }
     }
+
+    protected async Task SendMessage()
+    {
+        UserData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{currentUserName}");
+        newMessagePost.UserID = UserData.ToList()[0].UserID;
+        newMessagePost.Content = newMessage;
+        check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/SendNewMessage", newMessagePost);
+        NavigationManager.NavigateTo($"/StudentHomepage");
+    }
+}

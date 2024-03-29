@@ -44,6 +44,20 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<StudentModel>($"Select FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
             return Ok(i);
         }
+
+        [HttpGet("GetDiscussionContent")]
+        public async Task<ActionResult<List<DiscussionForumModel>>> GetDiscussionContent()
+        {
+            var i = await CreateConnection().QueryAsync<DiscussionForumModel>($"SELECT FirstName,PostDateTime,Content from DiscussionPosts\nJoin Users on DiscussionPosts.UserID = Users.UserID");
+            return Ok(i);
+        }
+        [HttpPost("SendNewMessage")]
+        public async Task<SuccessMessageModel> SendNewMessage(NewMessageModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO DiscussionPosts (UserID, Content)\nVALUES ({Model.UserID}, '{Model.Content}');");
+            return new SuccessMessageModel { Message = "success" };
+
+
+        }
     }
 }
-
