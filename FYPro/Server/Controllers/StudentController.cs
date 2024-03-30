@@ -41,7 +41,7 @@ namespace FYPro.Server.Controllers
         [HttpGet("GetStudentInfo/{Email}")]
         public async Task<ActionResult<List<StudentModel>>> GetStudentInfo(string Email)
         {
-            var i = await CreateConnection().QueryAsync<StudentModel>($"Select FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
+            var i = await CreateConnection().QueryAsync<StudentModel>($"Select FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC,ProjectID from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
             return Ok(i);
         }
 
@@ -61,6 +61,14 @@ namespace FYPro.Server.Controllers
         public async Task<SuccessMessageModel> SendNewMessage(NewMessageModel Model)
         {
             await CreateConnection().ExecuteAsync($"INSERT INTO DiscussionPosts (UserID, Content)\nVALUES ({Model.UserID}, '{Model.Content}');");
+            return new SuccessMessageModel { Message = "success" };
+
+
+        }
+        [HttpPost("ScheduleMeetingWithSupervisor")]
+        public async Task<SuccessMessageModel> ScheduleMeetingWithSupervisor(MeetingModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Meetings (ProjectID, SupervisorFacultyNumber, RollNumber, MeetingDateTime, Agenda) VALUES\n({Model.ProjectID}, '{Model.SupervisorFacultyNumber}', '{Model.RollNumber}', '{Model.MeetingDateTime}', '{Model.Agenda}');");
             return new SuccessMessageModel { Message = "success" };
 
 

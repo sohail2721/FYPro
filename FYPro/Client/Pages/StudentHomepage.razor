@@ -178,14 +178,13 @@
 </html>
 
 @code{
-    string currentUserName = string.Empty;
-    List<StudentModel> studentModel = new List<StudentModel>();
+        string currentUserName = string.Empty;
+        List<StudentModel> studentModel = new List<StudentModel>();
     protected async override Task OnInitializedAsync()
     {
         var authstates = await authstate.GetAuthenticationStateAsync();
         currentUserName = authstates.User.Identity.Name;
         Console.WriteLine("UserName: " + currentUserName);
         studentModel = await http.GetFromJsonAsync<List<StudentModel>>($"api/Student/GetStudentInfo/{currentUserName}");
-
     }
     }
