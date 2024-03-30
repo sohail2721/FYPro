@@ -98,7 +98,8 @@
 
     protected async Task HandleLogin()
     {
-
+        Email = "i211356@nu.edu.pk";
+        Password = "sohailshahbaz123";
         var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
 
         if (i.ToList()[0] > 0)

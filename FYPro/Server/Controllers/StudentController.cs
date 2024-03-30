@@ -51,6 +51,12 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<DiscussionForumModel>($"SELECT FirstName,PostDateTime,Content from DiscussionPosts\nJoin Users on DiscussionPosts.UserID = Users.UserID");
             return Ok(i);
         }
+        [HttpGet("GetSupervisorInfoForMeeting/{RollNo}")]
+        public async Task<ActionResult<List<SupervisorModel>>> GetSupervisorInfoForMeeting(string RollNo)
+        {
+            var i = await CreateConnection().QueryAsync<SupervisorModel>($"SELECT firstName,lastName,email,Supervisors.FacultyNumber,supervisors.Department,PhoneNumber,DOB,CNIC from projects\njoin Students on Students.ProjectID = Projects.ProjectID\njoin Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\njoin Users on Supervisors.UserID = Users.UserID\nwhere Students.RollNumber = '{RollNo}'");
+            return Ok(i);
+        }
         [HttpPost("SendNewMessage")]
         public async Task<SuccessMessageModel> SendNewMessage(NewMessageModel Model)
         {

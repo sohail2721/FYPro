@@ -6,14 +6,7 @@
 @inject IJSRuntime jsr
 @inject NavigationManager Navigation
 @inject NavigationManager NavigationManager
-"
-@using Microsoft.AspNetCore.Components.Authorization
-@using FYPro.Shared
-@inject AuthenticationStateProvider authstate
-@inject HttpClient http
-@inject IJSRuntime jsr
-@inject NavigationManager Navigation
-@inject NavigationManager NavigationManager
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -102,16 +95,34 @@
                 <option value="5:00 PM">5:00 PM</option>
             </select>
 
-
+            @if (SupervisorInfo.Any())
+                {
             <h2>Contact Information</h2>
             <p>For any urgent matters or inquiries, you can contact your supervisor using the information below:</p>
             <ul>
-                <li><strong>Name:</strong> Hassan Mujtaba </li>
-                <li><strong>Email:</strong> hassan.mujtaba@nu.edu.pk</li>
-                <li><strong>Phone:</strong> 0900-78601</li>
+                <li><strong>Name:</strong> @SupervisorInfo[0].FirstName @SupervisorInfo[0].LastName </li>
+                <li><strong>Email:</strong> @SupervisorInfo[0].Email</li>
+                <li><strong>Phone:</strong> @SupervisorInfo[0].PhoneNumber</li>
             </ul>
-            <input type="submit" value="Schedule">
+            }
+            <button>Schedule</button>
+            <button>View Scheduled meetings</button>
         </form>
     </div>
 </body>
 </html>
+
+@code{
+    string currentUserName = string.Empty;
+    List<StudentModel> studentModel = new List<StudentModel>();
+    List<SupervisorModel> SupervisorInfo = new List<SupervisorModel>();
+    protected async override Task OnInitializedAsync()
+    {
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        Console.WriteLine("UserName: " + currentUserName);
+        studentModel = await http.GetFromJsonAsync<List<StudentModel>>($"api/Student/GetStudentInfo/{currentUserName}");
+        SupervisorInfo = await http.GetFromJsonAsync<List<SupervisorModel>>($"api/Student/GetSupervisorInfoForMeeting/{studentModel.ToList()[0].RollNumber}");
+
+    }
+}
