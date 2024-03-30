@@ -107,19 +107,20 @@
             if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
             {
                 Console.WriteLine("Login Successful!");
+                await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
 
                 if (LoginData.ToList()[0].UserType == "Student")
                 {
-                    await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
                     NavigationManager.NavigateTo($"/StudentHomepage");
                 }
-                else if(LoginData.ToList()[0].UserType == "Admin")
+                else if(LoginData.ToList()[0].UserType == "Administrator")
                 {
-                    //NavigationManager.NavigateTo($"/AdminHomepage");
+                    NavigationManager.NavigateTo($"/AdminHomepage");
                 }
                 else if (LoginData.ToList()[0].UserType == "Supervisor")
                 {
-                    //NavigationManager.NavigateTo($"/SupervisorHomepage");
+
+                    NavigationManager.NavigateTo($"/SupervisorHomepage");
                 }
             }
         }

@@ -1,50 +1,154 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FYPro</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@inject NavigationManager Navigation
+@using System.Text.RegularExpressions;
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using FYPro.Client
+@using System.IdentityModel.Tokens.Jwt
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject AuthenticationStateProvider authstates
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="StudentHomepage" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
+
+
+
+@if (LoginData != null && LoginData.Count > 0 && LoginData[0].UserType == "Supervisor")
+{
+    <div class="top-row ps-3 navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">FYPro</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="ScheduleMeetingStudent">
-                <span class="oi oi-plus" aria-hidden="true"></span> Schedule Meeting
-            </NavLink>
+    </div>
+
+    <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="SupervisorHomepage" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Schedule Meeting
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Assign Tasks
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Document Management
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Discussion Forum
+                </NavLink>
+            </div>
+        </nav>
+    </div>
+}
+else if (LoginData != null && LoginData.Count > 0 && LoginData[0].UserType == "Student")
+{
+    <div class="top-row ps-3 navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">FYPro</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Task Management
-            </NavLink>
+    </div>
+
+    <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="StudentHomepage" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="ScheduleMeetingStudent">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Schedule Meeting
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="fetchdata">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Task Management
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="counter">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Document Management
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="DiscussionForumPage">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Discussion Forum
+                </NavLink>
+            </div>
+        </nav>
+    </div>
+}
+else
+{
+    <div class="top-row ps-3 navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">FYPro</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Document Management
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="DiscussionForumPage">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Discussion Forum
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    </div>
+
+    <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="AdminHomepage" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Manage Supervisors
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Manage Projects
+                </NavLink>
+            </div>
+           
+        </nav>
+    </div>
+}
 
 @code {
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+    string currentUsername = string.Empty;
+    List<UserModel> LoginData = new List<UserModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authstates.GetAuthenticationStateAsync();
+        currentUsername = authState.User.Identity.Name;
+        //Console.WriteLine("CHECK: " + currentUsername);
+        LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{currentUsername}");
+        //Console.WriteLine("User: " + LoginData.ToList()[0].UserType);
+
+    }
+
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+
 }
 

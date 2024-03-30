@@ -1,4 +1,4 @@
-﻿ @page "/StudentHomepage"
+﻿ @page "/SupervisorHomepage"
 @using Microsoft.AspNetCore.Components.Authorization
 @using FYPro.Shared
 @inject AuthenticationStateProvider authstate
@@ -89,9 +89,9 @@
 <body>
     <section class="hero">
         <div class="hero-container">
-            @if (studentModel.Any())
+            @if (SupervisorInfo.Any())
                 {
-                <h2>Welcome Back @studentModel[0].FirstName @studentModel[0].LastName!</h2>
+                <h2>Welcome Back @SupervisorInfo[0].FirstName @SupervisorInfo[0].LastName!</h2>
                 }
             <p>Explore your Projects, view deadlines, manage your meetings with the all new FYPro Portal.</p>
 
@@ -104,26 +104,26 @@
             <tr>
                 <th colspan="2">Personal Information</th>
             </tr>
-            @if (studentModel.Any())
+            @if (SupervisorInfo.Any())
                 {
                 <tr>
                     <td>Name:</td>
-                    <td>@studentModel[0].FirstName @studentModel[0].LastName</td>
+                    <td>@SupervisorInfo[0].FirstName @SupervisorInfo[0].LastName</td>
                 </tr>
 
 
             <tr>
                 <td>CNIC:</td>
-                <td>@studentModel[0].CNIC</td>
+                <td>@SupervisorInfo[0].CNIC</td>
             </tr>
             <tr>
                 <td>Email:</td>
-                <td>@studentModel[0].Email</td>
+                <td>@SupervisorInfo[0].Email</td>
             </tr>
             <tr>
                 <td>Date of Birth:</td>
              
-                <td>@studentModel[0].DOB</td>
+                <td>@SupervisorInfo[0].DOB</td>
             </tr>
 
             <tr>
@@ -132,21 +132,13 @@
             <tr>
                 <td>Roll NO:</td>
                 
-                <td>@studentModel[0].RollNumber</td>
+                <td>@SupervisorInfo[0].FacultyNumber</td>
             </tr>
             <tr>
-                <td>Degree:</td>
-                <td>@studentModel[0].Degree</td>
+                <td>Department:</td>
+                <td>@SupervisorInfo[0].Department</td>
             </tr>
-            <tr>
-                <td>Program:</td>
-              
-                <td>@studentModel[0].Program</td>
-            </tr>
-            <tr>
-                <td>Campus:</td>
-                <td>@studentModel[0].Campus</td>
-            </tr>
+          
             
             <tr>
 
@@ -156,13 +148,9 @@
             <tr>
                 <td>Phone Number:</td>
                
-                <td>@studentModel[0].PhoneNumber</td>
+                <td>@SupervisorInfo[0].PhoneNumber</td>
             </tr>
-            <tr>
-                <td>Parent Phone Number:</td>
-                <td>@studentModel[0].ParentsPhoneNumber</td>
-
-            </tr>
+            
             }
         </tbody>
     </table>
@@ -170,7 +158,7 @@
     <br />
     <footer>
         <div class="footer-container">
-            <p>&copy; 2024 FYPRO Portal. All rights reserved.</p>
+            <p>&copy; 2024 FYPro Portal. All rights reserved.</p>
         </div>
     </footer>
 
@@ -179,13 +167,13 @@
 
 @code{
     string currentUserName = string.Empty;
-    List<StudentModel> studentModel = new List<StudentModel>();
+    List<SupervisorModel> SupervisorInfo = new List<SupervisorModel>();
     protected async override Task OnInitializedAsync()
     {
         var authstates = await authstate.GetAuthenticationStateAsync();
         currentUserName = authstates.User.Identity.Name;
         Console.WriteLine("UserName: " + currentUserName);
-        studentModel = await http.GetFromJsonAsync<List<StudentModel>>($"api/Student/GetStudentInfo/{currentUserName}");
+        SupervisorInfo = await http.GetFromJsonAsync<List<SupervisorModel>>($"api/Supervisor/GetSupervisorInfo/{currentUserName}");
 
     }
     }
