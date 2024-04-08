@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using FYPro.Shared
 @using System.Globalization;
+@using MudBlazor
 @inject AuthenticationStateProvider authstate
 @inject HttpClient http
 @inject IJSRuntime jsr
@@ -110,7 +111,7 @@
                     <li><strong>Phone:</strong> @SupervisorInfo[0].PhoneNumber</li>
                 </ul>
             }
-            <button @onclick="@(e => ScheduleMeeting(e))">Schedule</button>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@ScheduleMeeting">Login</MudButton>
 
             <button>View Scheduled meetings</button>
         </form>
@@ -132,6 +133,9 @@
     SuccessMessageModel check = new SuccessMessageModel();
     protected async override Task OnInitializedAsync()
     {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
         var authstates = await authstate.GetAuthenticationStateAsync();
         currentUserName = authstates.User.Identity.Name;
         Console.WriteLine("UserName: " + currentUserName);
@@ -155,15 +159,15 @@
 
         // Alternatively, if you want to store it as a string
         string meetingDateTimeString = meetingDateTime.ToString("yyyy-MM-dd hh:mm");
-        meetingInfo.MeetingDateTime = meetingDateTime;
-        meetingInfo.Agenda = Agenda;
-        meetingInfo.ProjectID = studentModel.ToList()[0].ProjectID;
-        meetingInfo.SupervisorFacultyNumber = SupervisorInfo.ToList()[0].FacultyNumber;
-        meetingInfo.RollNumber = studentModel.ToList()[0].RollNumber;
-        Console.WriteLine(meetingInfo.ProjectID + meetingInfo.SupervisorFacultyNumber + meetingInfo.RollNumber + meetingInfo.Agenda + meetingInfo.MeetingDateTime);
+        //meetingInfo.MeetingDateTime = meetingDateTime;
+        //meetingInfo.Agenda = Agenda;
+        //meetingInfo.ProjectID = studentModel.ToList()[0].ProjectID;
+        //meetingInfo.SupervisorFacultyNumber = SupervisorInfo.ToList()[0].FacultyNumber;
+        //meetingInfo.RollNumber = studentModel.ToList()[0].RollNumber;
+        //Console.WriteLine(meetingInfo.ProjectID + meetingInfo.SupervisorFacultyNumber + meetingInfo.RollNumber + meetingInfo.Agenda + meetingInfo.MeetingDateTime);
     }
 
-    protected async Task ScheduleMeeting(MouseEventArgs e)
+    protected async Task ScheduleMeeting()
     {
         meetingInfo.MeetingDateTime = meetingDateTime;
         meetingInfo.Agenda = Agenda;
@@ -171,7 +175,8 @@
         meetingInfo.SupervisorFacultyNumber = SupervisorInfo.ToList()[0].FacultyNumber;
         meetingInfo.RollNumber = studentModel.ToList()[0].RollNumber;
         check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/ScheduleMeetingWithSupervisor", meetingInfo);
+        Console.WriteLine("Meeting Schedule " + check.Message);
         NavigationManager.NavigateTo($"/StudentHomepage");
 
     }
-    }
+}
