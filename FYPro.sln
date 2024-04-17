@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1705.4
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FYPro.Server", "FYPro\Server\FYPro.Server.csproj", "{41581FA9-6F82-43B0-9623-96304E7D4D3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FYPro.Server", "FYPro\Server\FYPro.Server.csproj", "{41581FA9-6F82-43B0-9623-96304E7D4D3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FYPro.Client", "FYPro\Client\FYPro.Client.csproj", "{D86B8A18-BD78-4235-BC77-F8B0AC8086E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FYPro.Client", "FYPro\Client\FYPro.Client.csproj", "{D86B8A18-BD78-4235-BC77-F8B0AC8086E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FYPro.Shared", "FYPro\Shared\FYPro.Shared.csproj", "{82099AC0-CE86-4479-8145-2A0DF2CC5F35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FYPro.Shared", "FYPro\Shared\FYPro.Shared.csproj", "{82099AC0-CE86-4479-8145-2A0DF2CC5F35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

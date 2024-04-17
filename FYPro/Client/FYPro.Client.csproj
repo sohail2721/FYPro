@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.JSInterop" Version="7.0.5" />
     <PackageReference Include="MudBlazor" Version="6.2.3" />
     <PackageReference Include="Selenium.WebDriver" Version="4.9.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
     <PackageReference Include="MudBlazor.Extensions" Version="1.7.41" />
   </ItemGroup>
 

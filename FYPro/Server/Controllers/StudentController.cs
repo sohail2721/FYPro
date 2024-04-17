@@ -33,7 +33,7 @@ namespace FYPro.Server.Controllers
 
         public SqlConnection CreateConnection()
         {
-            SqlConnection con = new SqlConnection(configuration.GetConnectionString("Default"));
+            SqlConnection con = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
             return con;
         }
 
