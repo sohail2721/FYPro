@@ -113,7 +113,7 @@
             }
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@ScheduleMeeting">Login</MudButton>
 
-            <button>View Scheduled meetings</button>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@NavigateToViewScheduledMeetings">View Scheduled Meetings</MudButton>
         </form>
     </div>
 </body>
@@ -178,5 +178,10 @@
         Console.WriteLine("Meeting Schedule " + check.Message);
         NavigationManager.NavigateTo($"/StudentHomepage");
 
+    }
+
+    public void NavigateToViewScheduledMeetings()
+    {
+        NavigationManager.NavigateTo($"/ViewScheduledMeetings");
     }
 }

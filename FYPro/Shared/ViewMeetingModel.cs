@@ -1,11 +1,13 @@
 ﻿namespace FYPro.Shared;
 
-public class MeetingModel
+public class ViewMeetingModel
 {
-    public string ProjectID { get; set; } = string.Empty;
-    public string SupervisorFacultyNumber { get; set; } = string.Empty;
-    public string RollNumber { get; set; } = string.Empty;
+    public string MeetingID { get; set; } = string.Empty;
+    public string ProjectName { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public DateTime MeetingDateTime { get; set; }  
     public string Agenda { get; set; } = string.Empty;
+    public string Complete { get; set; } = string.Empty;
 }
+
 

@@ -116,6 +116,13 @@
         newMessagePost.UserID = UserData.ToList()[0].UserID;
         newMessagePost.Content = newMessage;
         check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/SendNewMessage", newMessagePost);
-        NavigationManager.NavigateTo($"/StudentHomepage");
+        if (UserData.ToList()[0].UserType == "Student")
+        {
+            NavigationManager.NavigateTo($"/StudentHomepage");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/SupervisorHomepage");
+        }
     }
-}
+    }

@@ -57,6 +57,20 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<SupervisorModel>($"SELECT firstName,lastName,email,Supervisors.FacultyNumber,supervisors.Department,PhoneNumber,DOB,CNIC from projects\njoin Students on Students.ProjectID = Projects.ProjectID\njoin Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\njoin Users on Supervisors.UserID = Users.UserID\nwhere Students.RollNumber = '{RollNo}'");
             return Ok(i);
         }
+        [HttpGet("ViewScheduledMeetings/{RollNo}")]
+        public async Task<ActionResult<List<ViewMeetingModel>>> ViewScheduledMeetings(string RollNo)
+        {
+            var i = await CreateConnection().QueryAsync<ViewMeetingModel>($"SELECT M.MeetingID, P.ProjectName, P.Description, M.MeetingDateTime, M.Agenda, M.Complete\nFROM Meetings M\nJOIN Projects P ON P.ProjectID = M.ProjectID\nJOIN Students S ON S.RollNumber = M.RollNumber\nJOIN Users U ON U.UserID = S.UserID\nWHERE U.Email = '{RollNo}';\n");
+            return Ok(i);
+        }
+        [HttpPost("MarkMeetingAsComplete")]
+        public async Task<SuccessMessageModel> MarkMeetingAsComplete(ViewMeetingModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"UPDATE Meetings\nSET Complete = 1 \nWHERE MeetingID = {Model.MeetingID};\n");
+            return new SuccessMessageModel { Message = "success" };
+
+
+        }
         [HttpPost("SendNewMessage")]
         public async Task<SuccessMessageModel> SendNewMessage(NewMessageModel Model)
         {
@@ -70,7 +84,6 @@ namespace FYPro.Server.Controllers
         {
             await CreateConnection().ExecuteAsync($"INSERT INTO Meetings (ProjectID, SupervisorFacultyNumber, RollNumber, MeetingDateTime, Agenda) VALUES\n({Model.ProjectID}, '{Model.SupervisorFacultyNumber}', '{Model.RollNumber}', '{Model.MeetingDateTime}', '{Model.Agenda}');");
             return new SuccessMessageModel { Message = "success" };
-
 
         }
     }
