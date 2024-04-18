@@ -157,14 +157,9 @@
 
         meetingDateTime = date.Add(TimeSpan.Parse(timeSlot));
 
-        // Alternatively, if you want to store it as a string
+        
         string meetingDateTimeString = meetingDateTime.ToString("yyyy-MM-dd hh:mm");
-        //meetingInfo.MeetingDateTime = meetingDateTime;
-        //meetingInfo.Agenda = Agenda;
-        //meetingInfo.ProjectID = studentModel.ToList()[0].ProjectID;
-        //meetingInfo.SupervisorFacultyNumber = SupervisorInfo.ToList()[0].FacultyNumber;
-        //meetingInfo.RollNumber = studentModel.ToList()[0].RollNumber;
-        //Console.WriteLine(meetingInfo.ProjectID + meetingInfo.SupervisorFacultyNumber + meetingInfo.RollNumber + meetingInfo.Agenda + meetingInfo.MeetingDateTime);
+       
     }
 
     protected async Task ScheduleMeeting()

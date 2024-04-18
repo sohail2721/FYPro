@@ -44,6 +44,19 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<SupervisorModel>($"SELECT FirstName,LastName,Email,FacultyNumber,Department,PhoneNumber,DOB,CNIC FROM Supervisors\nJoin Users  on Supervisors.UserID = Users.UserID \nwhere Email = '{Email}'");
             return Ok(i);
         }
+        [HttpGet("GetMyProjects/{Email}")]
+        public async Task<ActionResult<List<SupervisorsProjectsModel>>> GetMyProjects(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<SupervisorsProjectsModel>($"\nselect Projects.ProjectID,ProjectName,[Description],RollNumber from Projects\njoin Supervisors  on Supervisors.FacultyNumber = Projects.FacultyNumber\njoin Students on Students.ProjectID = Projects.ProjectID\njoin Users on Users.UserID = Supervisors.UserID\nWHERE Users.Email = '{Email}'");
+            return Ok(i);
+        }
+
+        [HttpGet("ViewScheduledMeetings/{Email}")]
+        public async Task<ActionResult<List<ViewMeetingModel>>> ViewScheduledMeetings(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<ViewMeetingModel>($"SELECT M.MeetingID, P.ProjectName,P.[Description], M.MeetingDateTime, M.Agenda,M.Complete\nFROM Meetings M\nJOIN Projects P ON M.ProjectID = P.ProjectID\nJOIN Supervisors S ON M.SupervisorFacultyNumber = S.FacultyNumber\nJOIN Users U ON S.UserID = U.UserID\nWHERE U.Email = '{Email}';\n");
+            return Ok(i);
+        }
 
     }
 }

@@ -63,6 +63,7 @@
     ViewMeetingModel PostingArray = new ViewMeetingModel();
     Dictionary<string, string> MeetingArray = new Dictionary<string, string>();
     SuccessMessageModel check = new SuccessMessageModel();
+    List<UserModel> LoginData = new List<UserModel>();
     protected async override Task OnInitializedAsync()
     {
         ApiRequest.http = http;
@@ -70,9 +71,16 @@
 
         var authState = await authstate.GetAuthenticationStateAsync();
         currentUserName = authState.User.Identity.Name;
+        LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{currentUserName}");
         Console.WriteLine("This page: " + currentUserName);
-        MeetingInfo = await http.GetFromJsonAsync<List<ViewMeetingModel>>($"api/Student/ViewScheduledMeetings/{currentUserName}");
-
+        if (LoginData.ToList()[0].UserType == "Student")
+        {
+            MeetingInfo = await http.GetFromJsonAsync<List<ViewMeetingModel>>($"api/Student/ViewScheduledMeetings/{currentUserName}");
+        }
+        else
+        {
+            MeetingInfo = await http.GetFromJsonAsync<List<ViewMeetingModel>>($"api/Supervisor/ViewScheduledMeetings/{currentUserName}");
+        }
     }
 
     private async Task MarkAsComplete(string meetingID, string complete)
@@ -83,4 +91,4 @@
         check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/MarkMeetingAsComplete", PostingArray);
         Console.WriteLine(check.Message);
     }
-}
+    }

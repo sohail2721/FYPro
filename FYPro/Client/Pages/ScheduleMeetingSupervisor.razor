@@ -1,0 +1,166 @@
+﻿@page "/ScheduleMeetingSupervisor"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Meeting Scheduler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, input[type="datetime-local"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Supervisor Meeting Scheduler</h1>
+        <form id="meetingForm">
+            <label for="projectGroup">Select Project Group:</label>
+            <select id="projectGroup" name="projectGroup" @onchange="HandleProjectChange">
+                @foreach (var row in SupProjInfo)
+                {
+                    <option value="" selected>--</option>
+                    <option value="@row.ProjectID"> @row.ProjectName -- @row.Description -- @row.RollNumber</option>
+
+                }
+
+            </select>
+
+            <label for="meetingDateTime">Select Date and Time:</label>
+            <input type="datetime-local" @bind="formattedDateTime" id="meetingDateTime" name="meetingDateTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+
+
+            <label for="agenda">Meeting Agenda:</label>
+            <textarea id="agenda" name="agenda" @bind="Agenda" placeholder="Enter meeting agenda..." required></textarea>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@ScheduleMeeting">Schedule Meeting</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@NavigateToViewScheduledMeetings">View Scheduled Meetings</MudButton>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+@code{
+    string currentUserName = string.Empty;
+    DateTime date;
+    DateTime meetingDateTime;
+    DateTime formattedDateTime;
+    public string Agenda = string.Empty;
+    //string timeSlot = string.Empty;
+    MeetingModel meetingInfo = new MeetingModel();
+    List<SupervisorsProjectsModel> SupProjInfo = new List<SupervisorsProjectsModel>();
+    List<SupervisorModel> SupervisorInfo = new List<SupervisorModel>();
+    SuccessMessageModel check = new SuccessMessageModel();
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        //Console.WriteLine("UserName: " + currentUserName);
+        SupProjInfo = await http.GetFromJsonAsync<List<SupervisorsProjectsModel>>($"api/SuperVisor/GetMyProjects/{currentUserName}");
+        SupervisorInfo = await http.GetFromJsonAsync<List<SupervisorModel>>($"api/Supervisor/GetSupervisorInfo/{currentUserName}");
+        meetingInfo.SupervisorFacultyNumber = SupervisorInfo.ToList()[0].FacultyNumber;
+    }
+
+
+
+    public void HandleProjectChange(ChangeEventArgs e)
+    {
+        string selectedProjectId = e.Value.ToString();
+        var selectedProject = SupProjInfo.FirstOrDefault(row => row.ProjectID == selectedProjectId);
+        if (selectedProject != null)
+        {
+            meetingInfo.ProjectID = selectedProject.ProjectID;
+            meetingInfo.RollNumber = selectedProject.RollNumber;
+        }
+    }
+
+
+    protected async Task ScheduleMeeting()
+    {
+        meetingInfo.Agenda = Agenda;
+        meetingInfo.MeetingDateTime = formattedDateTime;
+
+        if (meetingInfo != null)
+        {
+            Console.WriteLine(meetingInfo.ProjectID + " " + meetingInfo.RollNumber + " " + meetingInfo.SupervisorFacultyNumber + " " + meetingInfo.MeetingDateTime + " " + meetingInfo.Agenda);
+
+            check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/ScheduleMeetingWithSupervisor", meetingInfo);
+            Console.WriteLine("Meeting Schedule " + check.Message);
+            NavigationManager.NavigateTo($"/SupervisorHomepage");
+        }
+        else
+        {
+            Console.WriteLine("Error: meetingInfo is null.");
+            // Optionally, handle the case where meetingInfo is null
+        }
+    }
+
+    public void NavigateToViewScheduledMeetings()
+    {
+        NavigationManager.NavigateTo($"/ViewScheduledMeetings");
+    }
+
+}
