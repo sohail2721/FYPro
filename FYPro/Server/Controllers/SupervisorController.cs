@@ -45,5 +45,39 @@ namespace FYPro.Server.Controllers
             return Ok(i);
         }
 
+        //[HttpGet("GetAssignedTasks/{Email}")]
+        //public async Task<ActionResult<List<TaskModel>>> GetAssignedTasks(string Email)
+        //{
+        //    using var conn = CreateConnection();
+        //    var tasks = await conn.QueryAsync<TaskModel>(
+        //        @"SELECT * FROM Tasks WHERE AssignedBy IN (SELECT FacultyNumber FROM Supervisors WHERE Email = @Email)",
+        //        new { Email = Email });
+        //    return Ok(tasks.ToList());
+        //}
+
+        // SupervisorController.cs
+
+        [HttpGet("GetAssignedTasks/{Email}")]
+        public async Task<ActionResult<List<TaskModel>>> GetAssignedTasks(string Email)
+        {
+            using var conn = CreateConnection();
+            try
+            {
+                var tasks = await conn.QueryAsync<TaskModel>(
+                    @"SELECT t.* FROM Tasks t INNER JOIN Supervisors s ON t.AssignedBy = s.FacultyNumber INNER JOIN Users u ON s.UserID = u.UserID WHERE u.Email = @Email", new { Email });
+                return Ok(tasks.ToList());
+            }
+            catch (SqlException ex)
+            {
+                // Log the detailed exception message to your logging infrastructure
+                var logMessage = $"Database error in GetAssignedTasks: {ex.Message}";
+                // The following is a placeholder for your logging logic
+                Console.WriteLine(logMessage); // Replace this with your logging mechanism
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+
+        }
+
+
     }
 }

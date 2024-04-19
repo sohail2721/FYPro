@@ -184,6 +184,8 @@ CREATE TABLE Tasks (
     FOREIGN KEY (AssignedBy) REFERENCES Supervisors(FacultyNumber)
 );
 
+Drop Table Tasks;
+
 -- Alter the Tasks table to add the AssignedBy column
 ALTER TABLE Tasks
 ADD AssignedBy VARCHAR(4);
@@ -195,11 +197,15 @@ ADD CONSTRAINT FK_Tasks_Faculty
 
 
 -- Inserting data into Tasks Table
-INSERT INTO Tasks (ProjectID, TaskName, Description, Status, AssignedTo) VALUES
-(2, 'Literature Review', 'Review related literature.', 'Pending', '21I-0500');
+INSERT INTO Tasks (ProjectID, TaskName, Description, Status, AssignedTo, AssignedBy) VALUES
+(2, 'Literature Review', 'Review related literature.', 'Pending', '21I-0500', 'F001');
 
 SELECT * FROM Tasks;
 
+SELECT t.* FROM Tasks t
+INNER JOIN Supervisors s ON t.AssignedBy = s.FacultyNumber
+INNER JOIN Users u ON s.UserID = u.UserID
+WHERE u.Email = 'akhter.jamil@nu.edu.pk';
 
 -- MEETINGS TABLE
 CREATE TABLE Meetings (

@@ -1,7 +1,60 @@
-﻿ @page "/AssignTasks"
+﻿@page "/AssignTasks"
+@using FYPro.Shared
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>AssignTasks</h3>
+<h3>Assigned Tasks</h3>
+
+@if (assignedTasks == null)
+{
+    <p><em>Loading assigned tasks...</em></p>
+}
+else if (assignedTasks.Count == 0)
+{
+    <p>No tasks have been assigned by you yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Task Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in assignedTasks)
+            {
+                <tr>
+                    <td>@task.TaskName</td>
+                    <td>@task.Description</td>
+                    <td>@task.Status</td>
+                    <td>@task.AssignedTo</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
 
 @code {
+    private List<TaskModel> assignedTasks;
+    private string currentUserName = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        currentUserName = authState.User.Identity.Name;
+        await LoadAssignedTasks();
+    }
+
+    private async Task LoadAssignedTasks()
+    {
+        assignedTasks = await http.GetFromJsonAsync<List<TaskModel>>($"api/Supervisor/GetAssignedTasks/{currentUserName}");
+        StateHasChanged();
+    }
 }
