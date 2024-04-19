@@ -31,11 +31,22 @@ namespace FYPro.Server.Controllers
             configuration = _configuration;
         }
 
-        public SqlConnection CreateConnection()
+        private string GetConnectionString()
         {
-            SqlConnection con = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-            return con;
+            return configuration.GetConnectionString("Default");
         }
+
+        private SqlConnection CreateConnection()
+        {
+            string connectionString = GetConnectionString();
+            return new SqlConnection(connectionString);
+        }
+
+        //public SqlConnection CreateConnection()
+        //{
+        //    SqlConnection con = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+        //    return con;
+        //}
         private async Task<string> CreateJWT(string Username,string UserType)
         {
             var secretkey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwt:Key"]));

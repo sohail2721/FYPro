@@ -178,9 +178,21 @@ CREATE TABLE Tasks (
     Description TEXT,
     Status VARCHAR(50) DEFAULT 'Pending' CHECK (Status IN ('Pending', 'In Progress', 'Completed')),
     AssignedTo VARCHAR(8),
+    AssignedBy VARCHAR(4),
     FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID),
-    FOREIGN KEY (AssignedTo) REFERENCES Students(RollNumber)
+    FOREIGN KEY (AssignedTo) REFERENCES Students(RollNumber),
+    FOREIGN KEY (AssignedBy) REFERENCES Supervisors(FacultyNumber)
 );
+
+-- Alter the Tasks table to add the AssignedBy column
+ALTER TABLE Tasks
+ADD AssignedBy VARCHAR(4);
+
+-- Add a foreign key constraint to ensure integrity between Tasks and Faculty tables
+ALTER TABLE Tasks
+ADD CONSTRAINT FK_Tasks_Faculty
+    FOREIGN KEY (AssignedBy) REFERENCES Faculty(facultyNumber);
+
 
 -- Inserting data into Tasks Table
 INSERT INTO Tasks (ProjectID, TaskName, Description, Status, AssignedTo) VALUES
