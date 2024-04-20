@@ -45,6 +45,27 @@ namespace FYPro.Server.Controllers
             return Ok(i);
         }
 
+        [HttpGet("GetOngoingProjects")]
+        public async Task<ActionResult<List<ProjectAdminModel>>> GetOngoingProjects()
+        {
+            var i = await CreateConnection().QueryAsync<ProjectAdminModel>($"Select ProjectID,ProjectName,[Description],FirstName,LastName from Projects\nJoin Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\nJoin Users on Users.UserID = Supervisors.UserID");
+            return Ok(i);
+        }
+        [HttpGet("GetScheduledDefenses")]
+        public async Task<ActionResult<List<DefenseDetailsModel>>> GetScheduledDefenses()
+        {
+            var i = await CreateConnection().QueryAsync<DefenseDetailsModel>($"Select DefenseID,Projects.ProjectID, ProjectName,DateScheduled,[Location] from Defenses\njoin Projects on projects.ProjectID = Defenses.ProjectID");
+            return Ok(i);
+        }
+
+        [HttpPost("ScheduleDefense")]
+        public async Task<SuccessMessageModel> ScheduleDefense(DefenseModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Defenses (ProjectID, DateScheduled, Location)\nVALUES ('{Model.ProjectID}', '{Model.DateScheduled}', '{Model.Location}');\n");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
+
 
     }
 }

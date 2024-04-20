@@ -1,0 +1,170 @@
+﻿@page "/ScheduleDefenseAdmin"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Meeting Scheduler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, input[type="datetime-local"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Supervisor Meeting Scheduler</h1>
+        <form id="meetingForm">
+            <label for="projectGroup">Select Project Group:</label>
+           
+            <select id="projectGroup" name="projectGroup"  @onchange="HandleProjectChange">
+                @foreach (var row in OngoingProjects)
+                {
+                    <option value="" selected>--</option>
+                    <option value="@row.ProjectID"> @row.ProjectName -- @row.Description --Supervisor: @row.FirstName @row.LastName</option>
+
+                }
+
+            </select>
+
+              <label for="meetingDateTime">Select Date and Time:</label>
+            <input type="datetime-local" @bind="formattedDateTime" id="meetingDateTime" name="meetingDateTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+
+            <select id="venue" name="venue" @bind="Location">
+               
+                <option value="Auditorium">Auditorium</option>
+                <option value="Seminar Room">Seminar Room</option>
+                <option value="CS Lawn">CS Lawn</option>
+                
+            </select>
+
+
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" @onclick="ScheduleMeeting">Schedule Defense</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button"  OnClick="@NavigateToViewScheduledDefenses">View Scheduled Defenses</MudButton>
+        </form>
+    </div>
+</body>
+</html>
+
+@code{
+    string currentUserName = string.Empty;
+    string Location = string.Empty;
+    List<ProjectAdminModel> OngoingProjects = new List<ProjectAdminModel>();
+    DefenseModel DefenseInfo = new DefenseModel();
+    DateTime formattedDateTime;
+    SuccessMessageModel check = new SuccessMessageModel();
+
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        //Console.WriteLine("UserName: " + currentUserName);
+        OngoingProjects = await http.GetFromJsonAsync<List<ProjectAdminModel>>($"api/Admin/GetOngoingProjects/");
+
+    }
+    public void HandleProjectChange(ChangeEventArgs e)
+    {
+        string selectedProjectId = e.Value.ToString();
+        var selectedProject = OngoingProjects.FirstOrDefault(row => row.ProjectID == selectedProjectId);
+        if (selectedProject != null)
+        {
+            DefenseInfo.ProjectID = selectedProject.ProjectID;
+
+        }
+    }
+
+    public async Task ScheduleMeeting()
+    {
+
+
+        // Ensure formattedDateTime is properly assigned
+
+        // Assign formattedDateTime to DateScheduled
+        DefenseInfo.DateScheduled = formattedDateTime;
+        DefenseInfo.Location = Location;
+
+        Console.WriteLine(DefenseInfo.ProjectID +DefenseInfo.DateScheduled + " " + DefenseInfo.Location);
+        // Assign Location (already done via binding)
+
+        // Post DefenseInfo to the server
+        if (DefenseInfo != null)
+        {
+            check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Admin/ScheduleDefense", DefenseInfo);
+            Console.WriteLine(check.Message);
+            NavigationManager.NavigateTo($"/AdminHomepage");
+        }
+        else
+        {
+            Console.WriteLine("oho");
+
+        }
+
+
+    }
+    public void NavigateToViewScheduledDefenses()
+    {
+        NavigationManager.NavigateTo($"/ViewScheduledDefenses");
+    }
+    }
