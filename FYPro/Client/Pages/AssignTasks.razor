@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime jsr
 
 <h3>Assigned Tasks</h3>
 
@@ -38,11 +39,57 @@ else
             }
         </tbody>
     </table>
+}
+
+<h3>Assign Tasks</h3>
+
+@if (projects == null)
+{
+    <p><em>Loading projects...</em></p>
+}
+else if (projects.Count == 0)
+{
+    <p>No projects available for assignment.</p>
+}
+else
+{
+    <h4>Select Project:</h4>
+    <select @bind="selectedProjectId">
+        @foreach (var project in projects)
+        {
+            <option value="@project.ProjectID">@project.ProjectName</option>
+        }
+    </select>
+
+    @if (students == null)
+    {
+        <p><em>Loading students...</em></p>
+    }
+    else if (students.Count == 0)
+    {
+        <p>No students available for assignment.</p>
+    }
+    else
+    {
+        <h4>Select Student:</h4>
+        <select @bind="selectedStudentId">
+            @foreach (var student in students)
+            {
+                <option value="@student.UserID">@student.FirstName @student.LastName</option>
+            }
+        </select>
+
+        //<button @onclick="AssignTask">Assign Task</button>
+    }
 
 }
 
 @code {
     private List<TaskModel> assignedTasks;
+    private List<ProjectModel> projects; // Assuming you have a ProjectModel
+    private List<StudentModel> students; // Assuming you have a StudentModel
+    private int selectedProjectId;
+    private int selectedStudentId;
     private string currentUserName = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -50,11 +97,12 @@ else
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         currentUserName = authState.User.Identity.Name;
         await LoadAssignedTasks();
+        // await LoadProjectsAndStudents();
     }
 
     private async Task LoadAssignedTasks()
     {
         assignedTasks = await http.GetFromJsonAsync<List<TaskModel>>($"api/Supervisor/GetAssignedTasks/{currentUserName}");
-        StateHasChanged();
     }
+
 }

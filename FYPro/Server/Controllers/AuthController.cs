@@ -41,12 +41,6 @@ namespace FYPro.Server.Controllers
             string connectionString = GetConnectionString();
             return new SqlConnection(connectionString);
         }
-
-        //public SqlConnection CreateConnection()
-        //{
-        //    SqlConnection con = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-        //    return con;
-        //}
         private async Task<string> CreateJWT(string Username,string UserType)
         {
             var secretkey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwt:Key"]));
@@ -82,6 +76,7 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<int>($"select count(*) Count from Users where Email ='{Email}'");
             return Ok(i);
         }
+
         [HttpGet("user/{Email}")]
         public async Task<ActionResult<List<UserModel>>> VerifyUser(string Email)
         {
@@ -90,6 +85,7 @@ namespace FYPro.Server.Controllers
             i.ToList()[0].jwtbearer = await CreateJWT(Email, i.ToList()[0].UserType);
             return Ok(i);
         }
+
     }
 }
 

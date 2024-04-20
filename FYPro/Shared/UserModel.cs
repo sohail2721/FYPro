@@ -13,5 +13,6 @@ public class UserModel
     public string DOB { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string jwtbearer { get; set; } = string.Empty;
+    
 }
 

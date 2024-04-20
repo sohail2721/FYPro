@@ -8,6 +8,8 @@
 @using OpenQA.Selenium.Safari;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using System.IO
+@using System.Text.Json;
+
 
 @layout NoLayout
 @*@inject ISnackbar Snackbar*@
@@ -108,12 +110,13 @@
             {
                 Console.WriteLine("Login Successful!");
                 await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
+                // await jsr.InvokeVoidAsync("localStorage.setItem", "facultyNumber", LoginData.ToList()[0].FacultyNumber);
 
                 if (LoginData.ToList()[0].UserType == "Student")
                 {
                     NavigationManager.NavigateTo($"/StudentHomepage");
                 }
-                else if(LoginData.ToList()[0].UserType == "Administrator")
+                else if (LoginData.ToList()[0].UserType == "Administrator")
                 {
                     NavigationManager.NavigateTo($"/AdminHomepage");
                 }
@@ -127,4 +130,4 @@
 
     }
 
-    }
+}
