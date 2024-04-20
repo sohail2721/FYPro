@@ -90,6 +90,32 @@ namespace FYPro.Server.Controllers
             return Ok(projects.ToList());
         }
 
+        // Example Controller, adjust according to your existing structure
+
+        [HttpGet("GetStudentsByProjectId/{projectId}")]
+        public async Task<ActionResult<List<StudentModel>>> GetStudentsByProjectId(string projectId)
+        {
+            using var conn = CreateConnection();
+            var students = await conn.QueryAsync<StudentModel>(
+                @"SELECT
+                    s.RollNumber,
+                    u.FirstName,
+                    u.LastName,
+                    s.BatchNumber,
+                    s.Campus,
+                    s.Department,
+                    s.Degree,
+                    s.Program,
+                    s.ParentsPhoneNumber,
+                    s.ProjectID
+                FROM
+                    Students s
+                JOIN Users u ON s.UserID = u.UserID
+                WHERE
+                s.ProjectID = @ProjectId", new { ProjectId = projectId });
+            return Ok(students.ToList());
+        }
+
 
     }
 }

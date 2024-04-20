@@ -54,34 +54,42 @@ else if (projects.Count == 0)
 else
 {
     <h4>Select Project:</h4>
-    <select @bind="selectedProjectId">
+    <select value="@selectedProjectId" @onchange="OnProjectSelectionChanged">
         @foreach (var project in projects)
         {
             <option value="@project.ProjectID">@project.ProjectName</option>
         }
     </select>
 
-    @if (students == null)
-    {
-        <p><em>Loading students...</em></p>
-    }
-    else if (students.Count == 0)
-    {
-        <p>No students available for assignment.</p>
-    }
-    else
-    {
-        <h4>Select Student:</h4>
-        <select @bind="selectedStudentId">
+}
+@if (students == null)
+{
+    <p><em>Loading students...</em></p>
+}
+else if (students.Count == 0)
+{
+    <p>No students available for assignment.</p>
+}
+else
+{
+    @* <select @bind-value="selectedStudentId" @bind-value:event="onchange">
             @foreach (var student in students)
             {
                 <option value="@student.UserID">@student.FirstName @student.LastName</option>
             }
-        </select>
+        </select> *@
 
-        //<button @onclick="AssignTask">Assign Task</button>
-    }
+    <select @onchange="OnStudentSelected">
+        @foreach (var student in students)
+        {
+            <option value="@student.UserID">@student.FirstName @student.LastName</option>
+        }
+    </select>
 
+    <p>Selected Student: @selectedStudentName</p>
+
+
+    //<button @onclick="AssignTask">Assign Task</button>
 }
 
 @code {
@@ -89,7 +97,8 @@ else
     private List<ProjectModel> projects; // Assuming you have a ProjectModel
     private List<StudentModel> students; // Assuming you have a StudentModel
     private int selectedProjectId;
-    private int selectedStudentId;
+    private string selectedStudentId;
+    private string selectedStudentName;
     private string currentUserName = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -111,5 +120,76 @@ else
         string facultyNumber = await jsr.InvokeAsync<string>("localStorage.getItem", "facultyNumber");
         projects = await http.GetFromJsonAsync<List<ProjectModel>>($"api/Supervisor/GetProjectsByFacultyNumber/{facultyNumber}");
     }
+
+    // Add a method to load students for the selected project
+    private async Task LoadStudents(int projectId)
+    {
+        try
+        {
+            students = await http.GetFromJsonAsync<List<StudentModel>>($"api/Supervisor/GetStudentsByProjectId/{projectId}");
+            if (students == null || students.Count == 0)
+            {
+                // Optionally initialize students to an empty list here to avoid null reference issues elsewhere
+                students = new List<StudentModel>();
+                Console.WriteLine("No students found for the selected project.");
+                // Optionally show an error message to the user here
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while loading students: {ex.Message}");
+            // Optionally show an error message to the user here
+        }
+    }
+
+    private async Task OnProjectSelectionChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int projectId))
+        {
+            selectedProjectId = projectId;
+            await LoadStudents(selectedProjectId);
+        }
+        else
+        {
+            // Handle the case where conversion fails
+            Console.WriteLine("ProjectID string to int conversion failed.");
+        }
+    }
+
+    // private void OnStudentSelected(ChangeEventArgs e)
+    // {
+    //     var studentIdAsString = e.Value.ToString(); // UserID is a string in StudentModel
+    //     selectedStudentId = studentIdAsString; // Set selectedStudentId as a string
+    //     var student = students.FirstOrDefault(s => s.UserID == studentIdAsString);
+    //     if (student != null)
+    //     {
+    //         selectedStudentName = student.FirstName + " " + student.LastName;
+    //     }
+    //     else
+    //     {
+    //         selectedStudentName = string.Empty;
+    //     }
+
+    //     StateHasChanged();
+    // }
+
+    private void OnStudentSelected(ChangeEventArgs e)
+    {
+        selectedStudentId = e.Value.ToString();
+        var student = students.FirstOrDefault(s => s.UserID == selectedStudentId);
+        if (student != null)
+        {
+            selectedStudentName = student.FirstName + " " + student.LastName;
+        }
+        else
+        {
+            selectedStudentName = string.Empty;
+            Console.WriteLine("Selected Student Name Empty String.");
+        }
+
+        StateHasChanged();
+    }
+
+
 
 }

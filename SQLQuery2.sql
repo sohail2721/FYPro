@@ -88,6 +88,8 @@ INSERT INTO Students (RollNumber, UserID, BatchNumber, Campus, Department, Degre
 
 SELECT * FROM Students;
 
+SELECT * FROM Students WHERE ProjectID = 2;
+
 
 -- SUPERVISORS TABLE
 CREATE TABLE Supervisors (
@@ -163,7 +165,10 @@ CREATE TABLE Projects (
 INSERT INTO Projects (ProjectName, Description, Status, FacultyNumber) VALUES
 ('Project Alpha', 'An innovative project.', 'Active', 'F001'),
 ('Project Beta', 'A groundbreaking exploration of new technology.', 'Active', 'F002'),
-('Project Gamma', 'Developing a novel approach to solving industry problems.', 'Active', 'F001');
+('Project Gamma', 'Developing a novel approach to solving industry problems.', 'Active', 'F001'),
+('Project Delta', 'A project aimed at enhancing data security.', 'Active', 'F003'),
+('Project Epsilon', 'Exploring renewable energy solutions for urban areas.', 'Active', 'F005'),
+('Project Zeta', 'Development of AI-based educational tools.', 'Completed', 'F006');
 
 -- DELETE FROM Projects;
 

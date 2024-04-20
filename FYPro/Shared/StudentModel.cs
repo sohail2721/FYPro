@@ -14,6 +14,9 @@ public class StudentModel
     public string ParentsPhoneNumber { get; set; } = string.Empty;
     public string DOB { get; set; } = string.Empty;
     public string CNIC { get; set; } = string.Empty;
+    public string BatchNumber {  get; set; } = string.Empty;
+    public string Department {  get; set; } = string.Empty;
+    public int ProjectID { get; set; }
 
 }
 
