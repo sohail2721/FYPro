@@ -44,6 +44,13 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<StudentModel>($"Select FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC,ProjectID from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
             return Ok(i);
         }
+        [HttpGet("ViewScheduledDefenses/{Email}")]
+        public async Task<ActionResult<List<StudentDefenseDetailsModel>>> ViewScheduledDefenses(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<StudentDefenseDetailsModel>($"\nSelect DefenseID,Projects.ProjectID, ProjectName,DateScheduled,[Location],FacultyNumber from Defenses\njoin Projects on projects.ProjectID = Defenses.ProjectID\njoin Students on Students.ProjectID = Projects.ProjectID\njoin Users on Users.UserID = Students.UserID\nWHERE Email = '{Email}'");
+            return Ok(i);
+        }
+
 
         [HttpGet("GetDiscussionContent")]
         public async Task<ActionResult<List<DiscussionForumModel>>> GetDiscussionContent()

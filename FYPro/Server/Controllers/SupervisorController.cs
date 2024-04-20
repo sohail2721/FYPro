@@ -57,6 +57,12 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<ViewMeetingModel>($"SELECT M.MeetingID, P.ProjectName,P.[Description], M.MeetingDateTime, M.Agenda,M.Complete\nFROM Meetings M\nJOIN Projects P ON M.ProjectID = P.ProjectID\nJOIN Supervisors S ON M.SupervisorFacultyNumber = S.FacultyNumber\nJOIN Users U ON S.UserID = U.UserID\nWHERE U.Email = '{Email}';\n");
             return Ok(i);
         }
+        [HttpGet("ViewScheduledDefenses/{Email}")]
+        public async Task<ActionResult<List<StudentDefenseDetailsModel>>> ViewScheduledDefenses(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<StudentDefenseDetailsModel>($"    Select DefenseID,Projects.ProjectID, ProjectName,DateScheduled,[Location],Projects.FacultyNumber from Defenses\n    join Projects on projects.ProjectID = Defenses.ProjectID\n    join Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\n    join Users on Users.UserID = Supervisors.UserID\n    WHERE Email = '{Email}'");
+            return Ok(i);
+        }
 
     }
 }

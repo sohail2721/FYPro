@@ -1,0 +1,77 @@
+﻿@page "/ViewScheduledDefensesStudents"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduled Meetings</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="max-width: 800px; margin: 20px auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <h1 style="text-align: center;">Scheduled Meetings</h1>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; font-weight: bold; text-align: left;">Project ID</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; font-weight: bold; text-align: left;">Project Name</th>
+
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; font-weight: bold; text-align: left;">Meeting Date & Time</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; font-weight: bold; text-align: left;">Location</th>
+                    <th style="padding: 10px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; font-weight: bold; text-align: left;">Supervisor Faculty No.</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in ScheduledDefenses)
+                {
+                    
+                        <tr>
+                            <td>@row.ProjectID</td>
+                            <td>@row.ProjectName</td>
+
+                            <td>@row.DateScheduled</td>
+                            <td>@row.Location</td>
+                            <td>@row.FacultyNumber</td>
+
+
+                        </tr>
+                    
+                }
+
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+@code {
+
+    string currentUserName = string.Empty;
+    List<StudentDefenseDetailsModel> ?ScheduledDefenses = new List<StudentDefenseDetailsModel>();
+ 
+   
+    SuccessMessageModel check = new SuccessMessageModel();
+
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+
+        var authState = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authState.User.Identity.Name;
+        ScheduledDefenses = await http.GetFromJsonAsync<List<StudentDefenseDetailsModel>>($"api/Student/ViewScheduledDefenses/{currentUserName}");
+        
+        
+    }
+
+  
+    }
