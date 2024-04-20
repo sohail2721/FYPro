@@ -97,12 +97,19 @@ else
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         currentUserName = authState.User.Identity.Name;
         await LoadAssignedTasks();
+        await LoadProjects();
         // await LoadProjectsAndStudents();
     }
 
     private async Task LoadAssignedTasks()
     {
         assignedTasks = await http.GetFromJsonAsync<List<TaskModel>>($"api/Supervisor/GetAssignedTasks/{currentUserName}");
+    }
+
+    private async Task LoadProjects()
+    {
+        string facultyNumber = await jsr.InvokeAsync<string>("localStorage.getItem", "facultyNumber");
+        projects = await http.GetFromJsonAsync<List<ProjectModel>>($"api/Supervisor/GetProjectsByFacultyNumber/{facultyNumber}");
     }
 
 }

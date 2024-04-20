@@ -78,5 +78,18 @@ namespace FYPro.Server.Controllers
 
         }
 
+        // SupervisorController.cs
+
+        [HttpGet("GetProjectsByFacultyNumber/{facultyNumber}")]
+        public async Task<ActionResult<List<ProjectModel>>> GetProjectsByFacultyNumber(string facultyNumber)
+        {
+            using var conn = CreateConnection();
+            var projects = await conn.QueryAsync<ProjectModel>(
+                "SELECT * FROM Projects WHERE FacultyNumber = @facultyNumber",
+                new { facultyNumber });
+            return Ok(projects.ToList());
+        }
+
+
     }
 }
