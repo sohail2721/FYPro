@@ -98,36 +98,72 @@
         StateHasChanged();
     }
 
+    // protected async Task HandleLogin()
+    // {
+
+    //     var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
+
+    //     if (i.ToList()[0] > 0)
+    //     {
+    //         LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{Email}");
+    //         if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
+    //         {
+    //             Console.WriteLine("Login Successful!");
+    //             await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
+    //             // await jsr.InvokeVoidAsync("localStorage.setItem", "facultyNumber", LoginData.ToList()[0].FacultyNumber);
+
+    //             if (LoginData.ToList()[0].UserType == "Student")
+    //             {
+    //                 NavigationManager.NavigateTo($"/StudentHomepage");
+    //             }
+    //             else if (LoginData.ToList()[0].UserType == "Administrator")
+    //             {
+    //                 NavigationManager.NavigateTo($"/AdminHomepage");
+    //             }
+    //             else if (LoginData.ToList()[0].UserType == "Supervisor")
+    //             {
+
+    //                 NavigationManager.NavigateTo($"/SupervisorHomepage");
+    //             }
+    //         }
+    //     }
+
+    // }
+
     protected async Task HandleLogin()
     {
+        var userExists = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
 
-        var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
-
-        if (i.ToList()[0] > 0)
+        if (userExists[0] > 0)
         {
-            LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{Email}");
-            if (LoginData.ToList()[0].Email == Email & LoginData.ToList()[0].Password == Password)
+            var userData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{Email}");
+            var user = userData[0];
+            if (user.Email == Email && user.Password == Password)
             {
                 Console.WriteLine("Login Successful!");
-                await jsr.InvokeVoidAsync("localStorage.setItem", "user", LoginData.ToList()[0].jwtbearer).ConfigureAwait(false);
-                // await jsr.InvokeVoidAsync("localStorage.setItem", "facultyNumber", LoginData.ToList()[0].FacultyNumber);
+                await jsr.InvokeVoidAsync("localStorage.setItem", "user", user.jwtbearer);
+                await jsr.InvokeVoidAsync("localStorage.setItem", "facultyNumber", user.FacultyNumber);
 
-                if (LoginData.ToList()[0].UserType == "Student")
+                // Navigate based on user type
+                if (user.UserType == "Student")
                 {
-                    NavigationManager.NavigateTo($"/StudentHomepage");
+                    NavigationManager.NavigateTo("/StudentHomepage");
                 }
-                else if (LoginData.ToList()[0].UserType == "Administrator")
+                else if (user.UserType == "Administrator")
                 {
-                    NavigationManager.NavigateTo($"/AdminHomepage");
+                    NavigationManager.NavigateTo("/AdminHomepage");
                 }
-                else if (LoginData.ToList()[0].UserType == "Supervisor")
+                else if (user.UserType == "Supervisor")
                 {
-
-                    NavigationManager.NavigateTo($"/SupervisorHomepage");
+                    NavigationManager.NavigateTo("/SupervisorHomepage");
                 }
             }
+            else
+            {
+                ShowAlert();
+            }
         }
-
     }
+
 
 }

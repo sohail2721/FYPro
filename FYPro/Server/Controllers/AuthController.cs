@@ -41,7 +41,37 @@ namespace FYPro.Server.Controllers
             string connectionString = GetConnectionString();
             return new SqlConnection(connectionString);
         }
-        private async Task<string> CreateJWT(string Username,string UserType)
+        //private async Task<string> CreateJWT(string Username,string UserType)
+        //{
+        //    var secretkey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwt:Key"]));
+        //    var credentials = new SigningCredentials(secretkey, SecurityAlgorithms.HmacSha256);
+        //    String Roles;
+        //    if (UserType == "Student")
+        //    {
+        //        Roles = "student";
+        //    }
+        //    else if (UserType == "Supervisor")
+        //    {
+        //        Roles = "supervisor";
+        //    }
+        //    else
+        //    {
+        //        Roles = "admin";
+        //    }
+        //    var claims = new[]
+        //    {
+        //        new Claim(ClaimTypes.Name, Username),
+        //        new Claim(ClaimTypes.Role, Roles),
+        //        new Claim(JwtRegisteredClaimNames.Sub, Username),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Username)
+        //    };
+
+        //    var token = new JwtSecurityToken(issuer: configuration["jwt:Issuer"], audience: configuration["jwt:Audience"], claims: claims, expires: DateTime.Now.AddMonths(1), signingCredentials: credentials);
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
+
+        // Update CreateJWT to accept FacultyNumber and include it in the claims
+        private async Task<string> CreateJWT(string Username, string UserType, string FacultyNumber = null)
         {
             var secretkey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwt:Key"]));
             var credentials = new SigningCredentials(secretkey, SecurityAlgorithms.HmacSha256);
@@ -58,13 +88,19 @@ namespace FYPro.Server.Controllers
             {
                 Roles = "admin";
             }
-            var claims = new[]
+
+            List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, Username),
                 new Claim(ClaimTypes.Role, Roles),
                 new Claim(JwtRegisteredClaimNames.Sub, Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Username)
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Use GUID for JTI
             };
+
+            if (!string.IsNullOrEmpty(FacultyNumber))
+            {
+                claims.Add(new Claim("FacultyNumber", FacultyNumber));
+            }
 
             var token = new JwtSecurityToken(issuer: configuration["jwt:Issuer"], audience: configuration["jwt:Audience"], claims: claims, expires: DateTime.Now.AddMonths(1), signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -77,13 +113,40 @@ namespace FYPro.Server.Controllers
             return Ok(i);
         }
 
+        //[HttpGet("user/{Email}")]
+        //public async Task<ActionResult<List<UserModel>>> VerifyUser(string Email)
+        //{
+
+        //    var i = await CreateConnection().QueryAsync<UserModel>($"SELECT * FROM Users WHERE Email = '{Email}'");
+        //    i.ToList()[0].jwtbearer = await CreateJWT(Email, i.ToList()[0].UserType);
+        //    return Ok(i);
+        //}
+
         [HttpGet("user/{Email}")]
         public async Task<ActionResult<List<UserModel>>> VerifyUser(string Email)
         {
+            using var conn = CreateConnection();
+            var users = await conn.QueryAsync<UserModel, SupervisorModel, UserModel>(
+                @"SELECT u.*, s.FacultyNumber FROM Users u
+                LEFT JOIN Supervisors s ON u.UserID = s.UserID
+                WHERE u.Email = @Email",
+                (user, supervisor) =>
+                {
+                    user.FacultyNumber = supervisor?.FacultyNumber; // Set the faculty number if available
+                    return user;
+                },
+                new { Email },
+                splitOn: "FacultyNumber"
+            ).ConfigureAwait(false);
 
-            var i = await CreateConnection().QueryAsync<UserModel>($"SELECT * FROM Users WHERE Email = '{Email}'");
-            i.ToList()[0].jwtbearer = await CreateJWT(Email, i.ToList()[0].UserType);
-            return Ok(i);
+            var listUsers = users.ToList();
+            if (listUsers.Count > 0)
+            {
+                listUsers[0].jwtbearer = await CreateJWT(Email, listUsers[0].UserType, listUsers[0].FacultyNumber);
+                return Ok(listUsers);
+            }
+
+            return NotFound("User not found.");
         }
 
     }
