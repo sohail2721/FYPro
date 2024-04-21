@@ -90,6 +90,8 @@ SELECT * FROM Students;
 
 SELECT * FROM Students WHERE ProjectID = 2;
 
+SELECT RollNumber FROM Students JOIN Users ON Students.UserID = Users.UserID WHERE ProjectID = 2;
+
 
 -- SUPERVISORS TABLE
 CREATE TABLE Supervisors (
