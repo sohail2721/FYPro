@@ -6,11 +6,11 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime jsr
 
-<h3>Assigned Tasks</h3>
+<h3 class="font-weight-bold display-4">Assigned Tasks</h3>
 
 @if (assignedTasks == null)
 {
-    <p><em>Loading assigned tasks...</em></p>
+    <p><em>Loading assigned tasks...</em> <i class="fas fa-spinner fa-spin"></i></p>
 }
 else if (assignedTasks.Count == 0)
 {
@@ -18,7 +18,7 @@ else if (assignedTasks.Count == 0)
 }
 else
 {
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Task Name</th>
@@ -41,11 +41,13 @@ else
     </table>
 }
 
-<h3>Assign Tasks</h3>
+<div class="mt-5">
+    <h3 class="font-weight-bold display-4">Assign a New Task</h3>
+</div>
 
 @if (projects == null)
 {
-    <p><em>Loading projects...</em></p>
+    <p><em>Loading projects...</em> <i class="fas fa-circle-notch fa-spin"></i></p>
 }
 else if (projects.Count == 0)
 {
@@ -53,17 +55,21 @@ else if (projects.Count == 0)
 }
 else
 {
-    <h4>Select Project:</h4>
-    <select value="@selectedProjectId" @onchange="OnProjectSelectionChanged">
-        @foreach (var project in projects)
-        {
-            <option value="@project.ProjectID">@project.ProjectName</option>
-        }
-    </select>
+    <div class="mb-3">
+        <label for="projectSelect" class="form-label"><h4>Select Project:</h4></label>
+        <select id="projectSelect" class="form-select" @bind-value="selectedProjectId" @bind-value:event="onchange">
+            @foreach (var project in projects)
+            {
+                <option value="@project.ProjectID">@project.ProjectName</option>
+            }
+        </select>
+
+
+    </div>
 
     @if (students == null)
     {
-        <p><em>Loading students...</em></p>
+        <p><em>Loading students...</em> <i class="fas fa-spinner fa-spin"></i></p>
     }
     else if (students.Count == 0)
     {
@@ -71,61 +77,54 @@ else
     }
     else
     {
-        @* <select @bind-value="selectedStudentId" @bind-value:event="onchange">
-            @foreach (var student in students)
-            {
-                <option value="@student.UserID">@student.FirstName @student.LastName</option>
-            }
-        </select> *@
-
-        <select @onchange="OnStudentSelected">
-            @foreach (var student in students)
-            {
-                <option value="@student.UserID">@student.FirstName @student.LastName</option>
-            }
-        </select>
-
-        <p>@(selectedStudentName ?? "No student selected")</p>
-
+        <div class="mb-3">
+            <label for="studentSelect" class="form-label">Select Student:</label>
+            <select id="studentSelect" class="form-select" @onchange="OnStudentSelected">
+                @foreach (var student in students)
+                {
+                    <option value="@student.UserID">@student.FirstName @student.LastName</option>
+                }
+            </select>
+            <div class="mt-2">
+                <p>@(selectedStudentName ?? "No student selected")</p>
+            </div>
+        </div>
     }
-
 }
 
-@if (selectedProjectId > 0)
+@if (selectedProjectId > 0 && students?.Count > 0)
 {
-    @if (students == null)
-    {
-        <p><em>Waiting for student data to load...</em></p>
-    }
-    else if (students.Count == 0)
-    {
-        <p>No students available for this project.</p>
-    }
-    else
-    {
-        <EditForm Model="@newTask" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <h4>Assign Task to Selected Student:</h4>
-            <p>@selectedStudentName</p>
-
-            <label for="taskName">Task Name:</label>
-            <InputText id="taskName" @bind-Value="newTask.TaskName" />
-
-            <label for="description">Task Description:</label>
-            <InputTextArea id="description" @bind-Value="newTask.Description" />
-
-            <label for="status">Status:</label>
-            <InputSelect id="status" @bind-Value="newTask.Status">
+    <EditForm Model="@newTask" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="taskName" class="form-label">Task Name:</label>
+            <InputText id="taskName" class="form-control" @bind-Value="newTask.TaskName" />
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Task Description:</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="newTask.Description" />
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <InputSelect id="status" class="form-select" @bind-Value="newTask.Status">
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
             </InputSelect>
+        </div>
+        <button type="button" class="btn btn-info" @onclick="PreviewTask">Preview Task</button>
+        <button type="submit" class="btn btn-primary">Assign Task</button>
 
-            <button type="submit">Assign Task</button>
-        </EditForm>
-    }
+    </EditForm>
+}
+
+@if (!string.IsNullOrWhiteSpace(previewTaskData))
+{
+    <div class="alert alert-secondary mt-2">
+        <h5>Task Preview:</h5>
+        <pre>@previewTaskData</pre>
+    </div>
 }
 
 @if (!string.IsNullOrWhiteSpace(statusMessage))
@@ -148,6 +147,8 @@ else
     private string statusMessage = "";
     private string statusClass = "";
     private string selectedStudentRollNumber = "21i-0500";
+    private string previewTaskData;
+
 
     private TaskModel newTask = new TaskModel
     {
@@ -157,32 +158,6 @@ else
         AssignedTo = string.Empty,
         AssignedBy = string.Empty,
     };
-
-    private async Task HandleValidSubmit()
-    {
-        newTask.ProjectID = selectedProjectId;
-        newTask.AssignedTo = selectedStudentRollNumber;
-        newTask.AssignedBy = facultyNumber; // Set the logged-in faculty's number
-
-        await http.PostAsJsonAsync($"api/Supervisor/AssignTask", newTask);
-        
-        var response = await http.PostAsJsonAsync("api/Supervisor/AssignTask", newTask);
-        var responseContent = await response.Content.ReadFromJsonAsync<ApiResponse>();
-
-        if (response.IsSuccessStatusCode)
-        {
-            statusMessage = responseContent?.Message ?? "Task successfully assigned.";
-            statusClass = "alert-success"; // This is a class for styling success messages
-        }
-        else
-        {
-            statusMessage = responseContent?.Message ?? "Failed to assign task.";
-            statusClass = "alert-danger"; // This is a class for styling error messages
-        }
-
-        StateHasChanged();
-
-    }
 
     // Helper class to parse the response
     private class ApiResponse
@@ -228,19 +203,37 @@ else
         }
     }
 
+    // private async Task OnProjectSelectionChanged(ChangeEventArgs e)
+    // {
+    //     if (int.TryParse(e.Value?.ToString(), out int projectId))
+    //     {
+    //         selectedProjectId = projectId;
+    //         await LoadStudents(selectedProjectId);
+    //     }
+    //     else
+    //     {
+    //         // Handle the case where conversion fails
+    //         Console.WriteLine("ProjectID string to int conversion failed.");
+    //     }
+    // }
+
     private async Task OnProjectSelectionChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int projectId))
         {
             selectedProjectId = projectId;
+            // Update the task model with the selected project ID
+            newTask.ProjectID = selectedProjectId;
             await LoadStudents(selectedProjectId);
+            Console.WriteLine($"Selected Project ID: {selectedProjectId}");
         }
         else
         {
-            // Handle the case where conversion fails
-            Console.WriteLine("ProjectID string to int conversion failed.");
+            // Log the error or handle it as required
+            Console.WriteLine("Failed to parse the selected project ID.");
         }
     }
+
 
     private void OnStudentSelected(ChangeEventArgs e)
     {
@@ -256,6 +249,52 @@ else
             Console.WriteLine("Selected Student Name Empty String.");
         }
 
+        StateHasChanged();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (selectedProjectId <= 0)
+        {
+            statusMessage = "Please select a project.";
+            statusClass = "alert-warning";
+            return;
+        }
+        
+        newTask.ProjectID = selectedProjectId;
+        newTask.AssignedTo = selectedStudentRollNumber;
+        newTask.AssignedBy = facultyNumber; // Set the logged-in faculty's number
+
+        await http.PostAsJsonAsync($"api/Supervisor/AssignTask", newTask);
+
+        var response = await http.PostAsJsonAsync("api/Supervisor/AssignTask", newTask);
+        var responseContent = await response.Content.ReadFromJsonAsync<ApiResponse>();
+
+        if (response.IsSuccessStatusCode)
+        {
+            statusMessage = responseContent?.Message ?? "Task successfully assigned.";
+            statusClass = "alert-success"; // This is a class for styling success messages
+        }
+        else
+        {
+            statusMessage = responseContent?.Message ?? "Failed to assign task.";
+            statusClass = "alert-danger"; // This is a class for styling error messages
+        }
+
+        StateHasChanged();
+
+    }
+
+    private void PreviewTask()
+    {
+        previewTaskData = $"Project ID: {newTask.ProjectID}\n" +
+                          $"Task Name: {newTask.TaskName}\n" +
+                          $"Description: {newTask.Description}\n" +
+                          $"Status: {newTask.Status}\n" +
+                          $"Assigned To (Roll Number): {selectedStudentRollNumber}\n" +
+                          $"Assigned By (Faculty Number): {facultyNumber}";
+
+        // For visual feedback
         StateHasChanged();
     }
 
