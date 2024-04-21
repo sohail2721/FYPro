@@ -50,8 +50,6 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<StudentDefenseDetailsModel>($"\nSelect DefenseID,Projects.ProjectID, ProjectName,DateScheduled,[Location],FacultyNumber from Defenses\njoin Projects on projects.ProjectID = Defenses.ProjectID\njoin Students on Students.ProjectID = Projects.ProjectID\njoin Users on Users.UserID = Students.UserID\nWHERE Email = '{Email}'");
             return Ok(i);
         }
-
-
         [HttpGet("GetDiscussionContent")]
         public async Task<ActionResult<List<DiscussionForumModel>>> GetDiscussionContent()
         {
@@ -75,16 +73,12 @@ namespace FYPro.Server.Controllers
         {
             await CreateConnection().ExecuteAsync($"UPDATE Meetings\nSET Complete = 1 \nWHERE MeetingID = {Model.MeetingID};\n");
             return new SuccessMessageModel { Message = "success" };
-
-
         }
         [HttpPost("SendNewMessage")]
         public async Task<SuccessMessageModel> SendNewMessage(NewMessageModel Model)
         {
             await CreateConnection().ExecuteAsync($"INSERT INTO DiscussionPosts (UserID, Content)\nVALUES ({Model.UserID}, '{Model.Content}');");
             return new SuccessMessageModel { Message = "success" };
-
-
         }
         [HttpPost("ScheduleMeetingWithSupervisor")]
         public async Task<SuccessMessageModel> ScheduleMeetingWithSupervisor(MeetingModel Model)
