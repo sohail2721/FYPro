@@ -1,0 +1,111 @@
+﻿@page "/ViewUploadedDocsSupervisor"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Assigned Tasks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>View Uploaded Docs</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Project ID</th>
+                    
+                    <th>Document Name</th>
+                    <th>Link</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in uploadedDocs)
+                {
+                    <tr>
+                        <td>@task.ProjectID</td>
+                        <td>@task.DocumentName</td>
+                        <td>
+                            <a href="@task.FilePath" class="btn btn-primary" target="_blank">View Document</a>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @*<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@NavigateToAssignNewTask">Assign New Tasks</MudButton>*@
+    </div>
+</body>
+</html>
+
+@code{
+    string currentUserName = string.Empty;
+    List<DocumentModel> uploadedDocs = new List<DocumentModel>();
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        //Console.WriteLine("UserName: " + currentUserName);
+        uploadedDocs = await http.GetFromJsonAsync<List<DocumentModel>>($"api/Supervisor/ViewUploadedDocs/{currentUserName}");
+
+    }
+    
+}

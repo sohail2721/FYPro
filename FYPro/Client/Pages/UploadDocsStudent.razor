@@ -1,0 +1,116 @@
+﻿@page "/UploadDocsStudent"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document Upload</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 500px;
+                margin: 0 auto;
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                color: #555;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            input[type="submit"] {
+                background-color: #4caf50;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                display: block;
+                margin: 0 auto;
+            }
+
+                input[type="submit"]:hover {
+                    background-color: #45a049;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Upload Documents</h1>
+            <form action="upload.php" method="post">
+                <label for="docName">Document Name:</label>
+                <input type="text" id="docName" @bind ="docName" name="docName" required>
+                <label for="docURL">Document URL:</label>
+                <input type="text" id="docURL" @bind="URL" name="docURL" required>
+
+            </form>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@UploadDoc">Upload New Document</MudButton>
+        </div>
+    </body>
+</html>
+
+@code{
+    string currentUserName = string.Empty;
+    string URL = string.Empty;
+    string docName = string.Empty;
+    DocumentModel newDoc = new DocumentModel();
+    SuccessMessageModel check = new SuccessMessageModel();
+    List<StudentModel> studentModel = new List<StudentModel>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        studentModel = await http.GetFromJsonAsync<List<StudentModel>>($"api/Student/GetStudentInfo/{currentUserName}");
+        //Console.WriteLine("UserName: " + currentUserName);
+
+
+    }
+    protected async Task UploadDoc()
+    {
+        newDoc.DocumentName = docName;
+        newDoc.FilePath = URL;
+        newDoc.ProjectID = studentModel.ToList()[0].ProjectID;
+        newDoc.UploadedBy = studentModel.ToList()[0].UserID;
+
+        check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/UploadDoc", newDoc);
+        NavigationManager.NavigateTo($"/StudentHomepage");
+
+    }
+}

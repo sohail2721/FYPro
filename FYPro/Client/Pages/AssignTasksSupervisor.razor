@@ -1,0 +1,140 @@
+﻿@page "/AssignTasksSupervisor"
+@using Microsoft.AspNetCore.Components.Authorization
+@using FYPro.Shared
+@using System.Globalization;
+@using MudBlazor
+@inject AuthenticationStateProvider authstate
+@inject HttpClient http
+@inject IJSRuntime jsr
+@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Task Assigner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Supervisor Task Assigner</h1>
+        <form id="taskForm">
+            <label for="taskName">Task Name:</label>
+            <input type="text" id="taskName" name="taskName" placeholder="Enter task name..." required @bind="TaskName">
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" placeholder="Enter task description..." required @bind="Description"></textarea>
+
+            <label for="student">Assign to Student:</label>
+            <select id="student" name="student" required  @onchange="HandleProjectChange">
+                @foreach (var student in EnrolledStudents)
+                {
+                    <option value="@student.ProjectID">@student.RollNumber -- @student.ProjectName</option>
+                }
+            </select>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@AssignTask">Assign New Tasks</MudButton>
+        </form>
+    </div>
+</body>
+</html>
+
+@code{
+    string currentUserName = string.Empty;
+    string TaskName = string.Empty;
+    string Description = string.Empty;
+    string Rollnumber = string.Empty;
+    List<SupervisorModel> ?SupervisorInfo = new List<SupervisorModel>();
+    List<SupervisorCurrentStudentsModel> EnrolledStudents = new List<SupervisorCurrentStudentsModel>();
+    TaskModel NewTask = new TaskModel();
+    SuccessMessageModel check = new SuccessMessageModel();
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        //await jsr.InvokeVoidAsync("localStorage.clear");
+        var authstates = await authstate.GetAuthenticationStateAsync();
+        currentUserName = authstates.User.Identity.Name;
+        //Console.WriteLine("UserName: " + currentUserName);
+        SupervisorInfo = await http.GetFromJsonAsync<List<SupervisorModel>>($"api/Supervisor/GetSupervisorInfo/{currentUserName}");
+        EnrolledStudents = await http.GetFromJsonAsync<List<SupervisorCurrentStudentsModel>>($"api/Supervisor/GetMyStudents/{currentUserName}");
+
+    }
+
+    public void HandleProjectChange(ChangeEventArgs e)
+    {
+        string selectedProjectId = e.Value.ToString();
+        var selectedProject = EnrolledStudents.FirstOrDefault(row => row.ProjectID == selectedProjectId);
+        if (selectedProject != null)
+        {
+            NewTask.ProjectID = selectedProject.ProjectID;
+            NewTask.AssignedTo = selectedProject.RollNumber;
+        }
+    }
+
+    protected async Task AssignTask()
+    {
+        NewTask.TaskName = TaskName;
+        NewTask.Description = Description;
+        NewTask.AssignedBy = SupervisorInfo.ToList()[0].FacultyNumber;
+
+        check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Supervisor/AssignNewTask", NewTask);
+        NavigationManager.NavigateTo($"/ViewAssignedTasksSupervisor");
+
+    }
+}

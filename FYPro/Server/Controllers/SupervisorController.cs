@@ -63,6 +63,31 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<StudentDefenseDetailsModel>($"    Select DefenseID,Projects.ProjectID, ProjectName,DateScheduled,[Location],Projects.FacultyNumber from Defenses\n    join Projects on projects.ProjectID = Defenses.ProjectID\n    join Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\n    join Users on Users.UserID = Supervisors.UserID\n    WHERE Email = '{Email}'");
             return Ok(i);
         }
+        [HttpGet("ViewAssignedTasks/{Email}")]
+        public async Task<ActionResult<List<AssignedTaskModel>>> ViewAssignedTasks(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<AssignedTaskModel>($" SELECT Projects.ProjectID,Projects.ProjectName,TaskName,[Tasks].[Description],[Tasks].[Status],AssignedTo,Supervisors.FacultyNumber From tasks\njoin Projects on Projects.ProjectID = tasks.ProjectID\njoin Supervisors on Supervisors.FacultyNumber = AssignedBy\njoin Users on Users.UserID = Supervisors.UserID\nwhere Users.Email ='{Email}'");
+            return Ok(i);
+        }
+        [HttpGet("GetMyStudents/{Email}")]
+        public async Task<ActionResult<List<SupervisorCurrentStudentsModel>>> GetMyStudents(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<SupervisorCurrentStudentsModel>($"SELECT RollNumber,ProjectName,Projects.ProjectID from Students\njoin Projects on Projects.ProjectID =Students.ProjectID\njoin Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\njoin Users on Users.UserID = Supervisors.UserID\nwhere Email = '{Email}'");
+            return Ok(i);
+        }
+        [HttpGet("ViewUploadedDocs/{Email}")]
+        public async Task<ActionResult<List<DocumentModel>>> ViewUploadedDocs(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<DocumentModel>($"Select Documents.ProjectID,DocumentName,FilePath,UploadedBy from Documents\njoin Projects on Projects.ProjectID = Documents.ProjectID\njoin Supervisors on Supervisors.FacultyNumber = Projects.FacultyNumber\njoin users on Users.UserID = Supervisors.UserID\nwhere Users.Email = '{Email}'");
+            return Ok(i);
+        }
+        [HttpPost("AssignNewTask")]
+        public async Task<SuccessMessageModel> AssignNewTask(TaskModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Tasks (ProjectID, TaskName, Description, AssignedTo,AssignedBy) VALUES\n({Model.ProjectID}, '{Model.TaskName}', '{Model.Description}', '{Model.AssignedTo}','{Model.AssignedBy}');");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
 
     }
 }

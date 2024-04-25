@@ -41,7 +41,7 @@ namespace FYPro.Server.Controllers
         [HttpGet("GetStudentInfo/{Email}")]
         public async Task<ActionResult<List<StudentModel>>> GetStudentInfo(string Email)
         {
-            var i = await CreateConnection().QueryAsync<StudentModel>($"Select FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC,ProjectID from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
+            var i = await CreateConnection().QueryAsync<StudentModel>($"Select Users.UserID,FirstName,LastName,Email,RollNumber,Degree,Program,Campus,PhoneNumber,ParentsPhoneNumber,DOB,CNIC,ProjectID from Students \nJoin Users on Students.UserID = Users.UserID \nwhere Email = '{Email}'");
             return Ok(i);
         }
         [HttpGet("ViewScheduledDefenses/{Email}")]
@@ -68,6 +68,12 @@ namespace FYPro.Server.Controllers
             var i = await CreateConnection().QueryAsync<ViewMeetingModel>($"SELECT M.MeetingID, P.ProjectName, P.Description, M.MeetingDateTime, M.Agenda, M.Complete\nFROM Meetings M\nJOIN Projects P ON P.ProjectID = M.ProjectID\nJOIN Students S ON S.RollNumber = M.RollNumber\nJOIN Users U ON U.UserID = S.UserID\nWHERE U.Email = '{RollNo}';\n");
             return Ok(i);
         }
+        [HttpGet("ViewAssignedTasks/{Email}")]
+        public async Task<ActionResult<List<AssignedTaskModelStudents>>> ViewAssignedTasks(string Email)
+        {
+            var i = await CreateConnection().QueryAsync<AssignedTaskModelStudents>($"SELECT TaskID,Projects.ProjectID,Projects.ProjectName,TaskName,[Tasks].[Description],[Tasks].[Status],AssignedTo,AssignedBy From tasks\njoin Projects on Projects.ProjectID = tasks.ProjectID\njoin Students on Students.RollNumber = AssignedTo\njoin Users on Users.UserID = Students.UserID\nwhere Users.Email ='{Email}'");
+            return Ok(i);
+        }
         [HttpPost("MarkMeetingAsComplete")]
         public async Task<SuccessMessageModel> MarkMeetingAsComplete(ViewMeetingModel Model)
         {
@@ -84,6 +90,20 @@ namespace FYPro.Server.Controllers
         public async Task<SuccessMessageModel> ScheduleMeetingWithSupervisor(MeetingModel Model)
         {
             await CreateConnection().ExecuteAsync($"INSERT INTO Meetings (ProjectID, SupervisorFacultyNumber, RollNumber, MeetingDateTime, Agenda) VALUES\n({Model.ProjectID}, '{Model.SupervisorFacultyNumber}', '{Model.RollNumber}', '{Model.MeetingDateTime}', '{Model.Agenda}');");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
+        [HttpPost("MarkTaskAsComplete")]
+        public async Task<SuccessMessageModel> MarkTaskAsComplete(CompleteTaskModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"Update Tasks\nSET [Status] = '{Model.Status}'\nWHERE TaskID = '{Model.TaskID}'");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
+        [HttpPost("UploadDoc")]
+        public async Task<SuccessMessageModel> UploadDoc(DocumentModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Documents (ProjectID, DocumentName, FilePath, UploadedBy)\nVALUES ({Model.ProjectID}, '{Model.DocumentName}', '{Model.FilePath}', {Model.UploadedBy});");
             return new SuccessMessageModel { Message = "success" };
 
         }

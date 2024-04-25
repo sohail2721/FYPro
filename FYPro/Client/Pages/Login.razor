@@ -27,7 +27,7 @@
     <div id="my-alert")">
         <div class="alert-container">
             <span class="oi oi-warning alert-text"> Invalid Username or Password</span>
-            @*<button class="close-button" @onclick="() => HideAlert()">x</button>*@
+          
         </div>
     </div>
 
@@ -40,7 +40,7 @@
         <div class="right-section">
             <form action="#" method="POST">
                 <div class="logo">
-                    <img src="FYPROLOGO.png" alt="Logo">
+                    <img src="LogoOK.png" alt="Logo">
                 </div>
                 <div class="login-box">
                     <h2>Login</h2>
@@ -101,11 +101,11 @@
         //Email = "amir.rehman@nu.edu.pk";
         //Password = "amirrehman123";
 
-        Email = "adnan.tariq@nu.edu.pk";
-        Password = "adnantaiq123";
+        Email = "akhter.jamil@nu.edu.pk";
+        Password = "akhterjamil123";
 
-        //Email = "i211356@nu.edu.pk";
-        //Password = "sohailshahbaz123";
+        //Email = "i210500@nu.edu.pk";
+        //Password = "fareeahnaseem123";
 
         var i = await http.GetFromJsonAsync<List<int>>($"api/Auth/VerificationUser/{Email}");
 
@@ -131,6 +131,10 @@
                     NavigationManager.NavigateTo($"/SupervisorHomepage");
                 }
             }
+        }
+        else
+        {
+
         }
 
     }
