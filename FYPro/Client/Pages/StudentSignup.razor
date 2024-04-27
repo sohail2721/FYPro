@@ -1,0 +1,148 @@
+﻿@page "/StudentSignup/{email}"
+@inject HttpClient http
+@inject IJSRuntime jsr
+@using FYPro.Shared
+@inherits LayoutComponentBase
+@using MudBlazor
+@using OpenQA.Selenium;
+@using OpenQA.Selenium.Safari;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.IO
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.WebUtilities
+@layout NoLayout
+@*@inject ISnackbar Snackbar*@
+@inject NavigationManager NavigationManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add Student</h2>
+        <form action="submit_student.php" method="POST">
+            <label for="rollNumber">Roll Number:</label>
+            <input type="text" id="rollNumber" name="rollNumber" required pattern="[0-9][0-9][IKLPF]-[0-9][0-9][0-9][0-9]" title="Please enter a valid roll number">
+
+            <label for="batchNumber">Batch Number:</label>
+            <input type="text" id="batchNumber" name="batchNumber" required>
+
+            <label for="campus">Campus:</label>
+            <select id="campus" name="campus" required>
+                <option value="" disabled selected>Select Campus</option>
+                <option value="Islamabad">Islamabad</option>
+                <option value="Karachi">Karachi</option>
+                <option value="Lahore">Lahore</option>
+                <option value="Peshawar">Peshawar</option>
+                <option value="Chiniot-Faisalabad">Chiniot-Faisalabad</option>
+            </select>
+
+            <label for="department">Department:</label>
+            <select id="department" name="department" required>
+                <option value="" disabled selected>Select Department</option>
+                <option value="Computing">Computing</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Management">Management</option>
+            </select>
+
+            <label for="degree">Degree:</label>
+            <select id="degree" name="degree" required>
+                <option value="" disabled selected>Select Degree</option>
+                <option value="AI">AI</option>
+                <option value="CS">CS</option>
+                <option value="DS">DS</option>
+                <option value="CY">CY</option>
+                <option value="SE">SE</option>
+                <option value="FinTech">FinTech</option>
+                <option value="BA">BA</option>
+                <option value="ANF">ANF</option>
+                <option value="EE">EE</option>
+                <option value="CE">CE</option>
+            </select>
+
+            <label for="program">Program:</label>
+            <select id="program" name="program" required>
+                <option value="" disabled selected>Select Program</option>
+                <option value="Bachelor's">Bachelor's</option>
+                <option value="Master's">Master's</option>
+            </select>
+
+            <label for="parentsPhoneNumber">Parent's Phone Number:</label>
+            <input type="text" id="parentsPhoneNumber" name="parentsPhoneNumber" required>
+
+
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>
+}
+
+
+@code{
+    [Parameter] public string? Email { get; set; }
+    SuccessMessageModel check = new SuccessMessageModel();
+    protected async override Task OnInitializedAsync()
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        Email = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var emailValue) ? emailValue : string.Empty;
+        Console.WriteLine(Email);
+    }
+}

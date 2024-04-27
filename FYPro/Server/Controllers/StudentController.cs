@@ -107,5 +107,12 @@ namespace FYPro.Server.Controllers
             return new SuccessMessageModel { Message = "success" };
 
         }
+        [HttpPost("InsertStudent")]
+        public async Task<SuccessMessageModel> InsertStudent(StudentModelRegistration Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Students (RollNumber, UserID, BatchNumber, Campus, Department, Degree, Program, ParentsPhoneNumber) VALUES\n('{Model.RollNumber}', {Model.UserID}, {Model.BatchNumber}, '{Model.Campus}', '{Model.Department}', '{Model.Degree}', '{Model.Program}', '{Model.ParentsPhoneNumber}');");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
     }
 }

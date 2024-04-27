@@ -65,6 +65,15 @@ namespace FYPro.Server.Controllers
             return new SuccessMessageModel { Message = "success" };
 
         }
+        [HttpPost("RegisterUser")]
+        public async Task<SuccessMessageModel> RegisterUser(UserModel Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Users (UserName, Email, UserType, Password, FirstName, LastName, CNIC, DOB, PhoneNumber) VALUES\n('{Model.UserName}', '{Model.Email}', '{Model.UserType}', '{Model.Password}', '{Model.FirstName}', '{Model.LastName}', '{Model.CNIC}', '{Model.DOB}', '{Model.PhoneNumber}');\n");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
+
+
 
 
     }

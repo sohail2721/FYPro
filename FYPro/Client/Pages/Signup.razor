@@ -1,0 +1,248 @@
+﻿@page "/Signup"
+@inject HttpClient http
+@inject IJSRuntime jsr
+@using FYPro.Shared
+@inherits LayoutComponentBase
+@using MudBlazor
+@using OpenQA.Selenium;
+@using OpenQA.Selenium.Safari;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.IO
+@using System.Text.RegularExpressions
+
+@layout NoLayout
+@*@inject ISnackbar Snackbar*@
+@inject NavigationManager NavigationManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <form>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required @bind="SignupData.UserName">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" @bind="SignupData.Email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="usertype">User Type:</label>
+                <select id="usertype" name="usertype" required @bind="SignupData.UserType">
+                    <option value="" selected disabled>Select User Type</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Student">Student</option>
+                </select>
+            </div>
+
+            @if (SignupData.UserType == "Student")
+            {
+                <div class="container">
+                    <h2>Add Student</h2>
+                    <form action="submit_student.php" method="POST">
+                        <label for="rollNumber">Roll Number:</label>
+                        <input type="text" @bind="StudentData.RollNumber" id="rollNumber" name="rollNumber" required pattern="[0-9][0-9][IKLPF]-[0-9][0-9][0-9][0-9]" title="Please enter a valid roll number">
+
+                        <label for="batchNumber">Batch Number:</label>
+                        <input type="text" @bind="StudentData.BatchNumber" id="batchNumber" name="batchNumber" required>
+
+                        <label for="campus">Campus:</label>
+                        <select id="campus" name="campus" required @bind="StudentData.Campus" >
+                            <option value="" disabled selected>Select Campus</option>
+                            <option value="Islamabad">Islamabad</option>
+                            <option value="Karachi">Karachi</option>
+                            <option value="Lahore">Lahore</option>
+                            <option value="Peshawar">Peshawar</option>
+                            <option value="Chiniot-Faisalabad">Chiniot-Faisalabad</option>
+                        </select>
+
+                        <label for="department">Department:</label>
+                        <select id="department" name="department" required @bind="StudentData.Department">
+                            <option value="" disabled selected>Select Department</option>
+                            <option value="Computing">Computing</option>
+                            <option value="Electrical Engineering">Electrical Engineering</option>
+                            <option value="Management">Management</option>
+                        </select>
+
+                        <label for="degree">Degree:</label>
+                        <select id="degree" name="degree" required @bind="StudentData.Degree">
+                            <option value="" disabled selected>Select Degree</option>
+                            <option value="AI">AI</option>
+                            <option value="CS">CS</option>
+                            <option value="DS">DS</option>
+                            <option value="CY">CY</option>
+                            <option value="SE">SE</option>
+                            <option value="FinTech">FinTech</option>
+                            <option value="BA">BA</option>
+                            <option value="ANF">ANF</option>
+                            <option value="EE">EE</option>
+                            <option value="CE">CE</option>
+                        </select>
+
+                        <label for="program">Program:</label>
+                        <select id="program" name="program" required @bind="StudentData.Program">
+                            <option value="" disabled selected>Select Program</option>
+                            <option value="Bachelor''s">Bachelor's</option>
+                            <option value="Master''s">Master's</option>
+                        </select>
+
+                        <label for="parentsPhoneNumber">Parent's Phone Number:</label>
+                        <input type="text" id="parentsPhoneNumber" name="parentsPhoneNumber" required @bind="StudentData.ParentsPhoneNumber">
+
+
+
+                       
+                    </form>
+                </div>
+            }
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required @bind="SignupData.Password">
+            </div>
+            <div class="form-group">
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="firstname" required @bind="SignupData.FirstName">
+            </div>
+            <div class="form-group">
+                <label for="lastname">Last Name:</label>
+                <input type="text" id="lastname" name="lastname" required @bind="SignupData.LastName">
+            </div>
+            <div class="form-group">
+                <label for="cnic">CNIC:</label>
+                <input type="text" id="cnic" name="cnic" minlength="13" maxlength="13" required @bind="SignupData.CNIC">
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" @onchange="HandleDateOfBirthChange">
+
+
+            </div>
+            <div class="form-group">
+                <label for="phonenumber">Phone Number:</label>
+                <input type="text" id="phonenumber" name="phonenumber" maxlength="11" @bind="SignupData.PhoneNumber">
+            </div>
+            <div class="form-group">
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@HandleSignup">Sign Up</MudButton>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+@code{
+    UserModel SignupData = new UserModel();
+    List<UserModel> ?LoginData = new List<UserModel>();
+    StudentModelRegistration StudentData = new StudentModelRegistration();
+    private string SelectedDateOfBirth { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
+    SuccessMessageModel check = new SuccessMessageModel();
+    protected async override Task OnInitializedAsync()
+
+    {
+        ApiRequest.http = http;
+        ApiRequest.jsr = jsr;
+        await jsr.InvokeVoidAsync("localStorage.clear");
+
+    }
+    private void HandleDateOfBirthChange(ChangeEventArgs e)
+    {
+        SelectedDateOfBirth = e.Value?.ToString();
+    }
+
+
+
+    protected async Task HandleSignup()
+    {
+        SignupData.DOB = SelectedDateOfBirth;
+        //Console.WriteLine(SignupData.UserName + " " + SignupData.Email + " " + SignupData.UserType + " " + SignupData.DOB + " "+ SignupData.Password + " "
+        //    + SignupData.FirstName + " " +SignupData.LastName + " " +SignupData.CNIC + " "+ SignupData.PhoneNumber );
+
+        check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Admin/RegisterUser", SignupData);
+        Console.WriteLine(check.Message + " user entered ");
+        LoginData = await http.GetFromJsonAsync<List<UserModel>>($"api/Auth/user/{SignupData.Email}");
+        if (SignupData.UserType == "Student")
+        {
+            StudentData.UserID = LoginData.ToList()[0].UserID;
+            Console.WriteLine(StudentData.UserID+" "+StudentData.RollNumber + " " + StudentData.Campus + " " + StudentData.Department + " " + StudentData.Degree + " " + StudentData.Program + " "
+        + StudentData.BatchNumber + " " + StudentData.ParentsPhoneNumber);
+
+            check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Student/InsertStudent", StudentData);
+            Console.WriteLine(check.Message + " student entered ");
+            NavigationManager.NavigateTo($"/Login");
+
+        }
+        
+        else if (SignupData.UserType == "Supervisor")
+        {
+            //NavigationManager.NavigateTo($"/Login");
+        }
+
+    }
+
+}

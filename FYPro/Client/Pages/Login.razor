@@ -8,6 +8,7 @@
 @using OpenQA.Selenium.Safari;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using System.IO
+@using System.Text.RegularExpressions
 
 @layout NoLayout
 @*@inject ISnackbar Snackbar*@
@@ -24,18 +25,19 @@
 </head>
 <body>
 
-    <div id="my-alert")">
+    <div id="my-alert" style="@($"display: {(showAlert ? "flex" : "none")}; opacity: {(showAlert ? 1 : 0)}")">
         <div class="alert-container">
             <span class="oi oi-warning alert-text"> Invalid Username or Password</span>
-          
+            <button class="close-button" @onclick="() => HideAlert()">x</button>
         </div>
     </div>
 
 
 
+
     <div class="container">
         <div class="left-section">
-   
+
         </div>
         <div class="right-section">
             <form action="#" method="POST">
@@ -54,6 +56,7 @@
                     </div>
                     <div class="login-container">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="login-button" OnClick="@HandleLogin">Login</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Dark" Class="login-button" OnClick="@NavigateToSignup">Sign Up</MudButton>
                     </div>
                     <div class="forgot-password">
                         <a href="ResetPassword">Forgot password?</a>
@@ -96,13 +99,50 @@
         StateHasChanged();
     }
 
+    public static bool ValidateEmail(string email)
+    {
+        // Check for empty input
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        // Check for valid email format using regular expression
+        Regex regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+        if (!regex.IsMatch(email))
+            return false;
+
+        // Check for maximum length
+        if (email.Length > 50)
+            return false;
+
+        return true;
+    }
+
+    public static bool ValidatePassword(string password)
+    {
+        // Check for empty input
+        if (string.IsNullOrWhiteSpace(password))
+            return false;
+
+        // Check for minimum length
+        if (password.Length < 6)
+            return false;
+
+        // Check for maximum length
+        if (password.Length > 50)
+            return false;
+
+
+
+        return true;
+    }
+
     protected async Task HandleLogin()
     {
         //Email = "amir.rehman@nu.edu.pk";
         //Password = "amirrehman123";
 
-        Email = "akhter.jamil@nu.edu.pk";
-        Password = "akhterjamil123";
+        //Email = "akhter.jamil@nu.edu.pk";
+        //Password = "akhterjamil123";
 
         //Email = "i210500@nu.edu.pk";
         //Password = "fareeahnaseem123";
@@ -121,7 +161,7 @@
                 {
                     NavigationManager.NavigateTo($"/StudentHomepage");
                 }
-                else if(LoginData.ToList()[0].UserType == "Administrator")
+                else if (LoginData.ToList()[0].UserType == "Administrator")
                 {
                     NavigationManager.NavigateTo($"/AdminHomepage");
                 }
@@ -131,12 +171,33 @@
                     NavigationManager.NavigateTo($"/SupervisorHomepage");
                 }
             }
+            else if(!ValidateEmail(Email) || !ValidatePassword(Password))
+            {
+                ShowAlert();
+                await Task.Delay(5000);
+                HideAlert();
+            }
+            else
+            {
+                Console.WriteLine("Invalid");
+                ShowAlert();
+                await Task.Delay(5000);
+                HideAlert();
+            }
         }
         else
         {
-
+            Console.WriteLine("User Doesn't Exists");
+            ShowAlert();
+            await Task.Delay(5000);
+            HideAlert();
         }
 
     }
 
+    public void NavigateToSignup()
+    {
+        NavigationManager.NavigateTo($"/Signup");
     }
+
+}
