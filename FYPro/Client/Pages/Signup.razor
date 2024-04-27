@@ -80,6 +80,13 @@
     </style>
 </head>
 <body>
+    <div id="my-alert" style="@($"display: {(showAlert ? "flex" : "none")}; opacity: {(showAlert ? 1 : 0)}")">
+        <div class="alert-container">
+            <span class="oi oi-warning alert-text"> Invalid Username or Password</span>
+            <button class="close-button" @onclick="() => HideAlert()">x</button>
+        </div>
+    </div>
+
     <div class="container">
         <h2>Sign Up</h2>
         <form>
@@ -97,7 +104,6 @@
                 <label for="usertype">User Type:</label>
                 <select id="usertype" name="usertype" required @bind="SignupData.UserType">
                     <option value="" selected disabled>Select User Type</option>
-                    <option value="Administrator">Administrator</option>
                     <option value="Supervisor">Supervisor</option>
                     <option value="Student">Student</option>
                 </select>
@@ -223,6 +229,7 @@
     SupervisorModelRegistration SupervisorData = new SupervisorModelRegistration();
     private string SelectedDateOfBirth { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
     SuccessMessageModel check = new SuccessMessageModel();
+    private bool showAlert = false;
     protected async override Task OnInitializedAsync()
 
     {
@@ -237,6 +244,17 @@
     }
 
 
+    private void ShowAlert()
+    {
+        showAlert = true;
+        StateHasChanged();
+    }
+
+    private void HideAlert()
+    {
+        showAlert = false;
+        StateHasChanged();
+    }
 
     protected async Task HandleSignup()
     {
