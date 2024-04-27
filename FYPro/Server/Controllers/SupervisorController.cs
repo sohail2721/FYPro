@@ -88,6 +88,13 @@ namespace FYPro.Server.Controllers
             return new SuccessMessageModel { Message = "success" };
 
         }
+        [HttpPost("InsertSupervisor")]
+        public async Task<SuccessMessageModel> InsertSupervisor(SupervisorModelRegistration Model)
+        {
+            await CreateConnection().ExecuteAsync($"INSERT INTO Supervisors (FacultyNumber, UserID, Department) VALUES\n('{Model.FacultyNumber}', {Model.UserID}, '{Model.Department}');");
+            return new SuccessMessageModel { Message = "success" };
+
+        }
 
     }
 }

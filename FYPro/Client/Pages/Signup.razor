@@ -85,12 +85,14 @@
         <form>
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required @bind="SignupData.UserName">
+                <input type="text" id="username" name="username" required minlength="2" @bind="SignupData.UserName">
             </div>
+
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" @bind="SignupData.Email" name="email" required>
             </div>
+
             <div class="form-group">
                 <label for="usertype">User Type:</label>
                 <select id="usertype" name="usertype" required @bind="SignupData.UserType">
@@ -113,7 +115,7 @@
                         <input type="text" @bind="StudentData.BatchNumber" id="batchNumber" name="batchNumber" required>
 
                         <label for="campus">Campus:</label>
-                        <select id="campus" name="campus" required @bind="StudentData.Campus" >
+                        <select id="campus" name="campus" required @bind="StudentData.Campus">
                             <option value="" disabled selected>Select Campus</option>
                             <option value="Islamabad">Islamabad</option>
                             <option value="Karachi">Karachi</option>
@@ -157,7 +159,25 @@
 
 
 
-                       
+
+                    </form>
+                </div>
+            }
+            else if (SignupData.UserType == "Supervisor")
+            {
+                <div class="container">
+                    <h2>Add Supervisor</h2>
+                    <form action="submit_supervisor.php" method="POST">
+                        <label for="batchNumber">Faculty Number:</label>
+                        <input type="text" @bind="SupervisorData.FacultyNumber" id="batchNumber" name="batchNumber" required>
+
+                        <label for="department">Department:</label>
+                        <select id="department" name="department" required @bind="SupervisorData.Department">
+                            <option value="" disabled selected>Select Department</option>
+                            <option value="Computing">Computing</option>
+                            <option value="Electrical Engineering">Electrical Engineering</option>
+                            <option value="Management">Management</option>
+                        </select>
                     </form>
                 </div>
             }
@@ -200,6 +220,7 @@
     UserModel SignupData = new UserModel();
     List<UserModel> ?LoginData = new List<UserModel>();
     StudentModelRegistration StudentData = new StudentModelRegistration();
+    SupervisorModelRegistration SupervisorData = new SupervisorModelRegistration();
     private string SelectedDateOfBirth { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
     SuccessMessageModel check = new SuccessMessageModel();
     protected async override Task OnInitializedAsync()
@@ -237,10 +258,13 @@
             NavigationManager.NavigateTo($"/Login");
 
         }
-        
+
         else if (SignupData.UserType == "Supervisor")
         {
-            //NavigationManager.NavigateTo($"/Login");
+            SupervisorData.UserID = LoginData.ToList()[0].UserID;
+            check = await ApiRequest.PostRequest<SuccessMessageModel>("api/Supervisor/InsertSupervisor", SupervisorData);
+            Console.WriteLine(check.Message + " Supervisor entered ");
+            NavigationManager.NavigateTo($"/Login");
         }
 
     }
